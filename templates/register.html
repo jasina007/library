@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pl">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="Rejestracja register">
+<meta name="description" content="Strona rejestracji">
+<head>
+    <title>Rejestracja</title>
+    <style>
+        h1{
+            font-size: 60px;
+            font-family:'Times New Roman', Times, serif;
+            font-weight: normal;
+            color: rgb(0, 0, 0);
+            text-align: center;
+        }
+
+        p{
+            font-family: 'Times New Roman', Times, serif;
+            color: rgb(red, rgb(15, 145, 15), blue);
+            text-align: left;
+        }
+
+        .bodytext{
+            font-family: 'Times New Roman', Times, serif;
+            color: rgb(rgb(177, 50, 50), green, blue);
+        }
+
+        #button{
+            text-align: end;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Rejestracja konta</h1>
+    <p>
+        <label for="name">Imię:</label>
+        <input id="name" name="Name" type="text" size="50" maxlength="30" required>
+    </p>
+    <p>
+        <label for="surname">Nazwisko:</label>
+        <input id="surname" name="Surname" type="text" size="50" maxlength="30" required>
+    </p>
+    <p>
+        <label for="phone">Numer telefonu:</label>
+        <input id="phone" name="Phone" type="tel" size="50" maxlength="15" required>
+    </p>
+    <p>
+        <label for="email">Adres e-mail:</label>
+        <input id="email" name="Surname" type="email" size="50" maxlength="255" required>
+    </p>
+    <p>
+        <label for="password">Hasło:</label>
+        <input id="password" name="Password" type="password" size="50" maxlength="255" required>
+    </p>
+    <div id="button">
+        <p>
+            <button class="btn btn-primary btn-lg">Zaloguj się</button>
+        </p>
+    </div>
+</body>
