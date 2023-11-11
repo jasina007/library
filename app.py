@@ -15,5 +15,9 @@ def log_in():
 def register():
     return render_template("register.html", code=302)
 
+@app.route("/search")
+def search():
+    return render_template("search.html", code=302)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
