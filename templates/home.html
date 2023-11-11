@@ -26,9 +26,16 @@
             }
 
             #container{
-                max-width: 720px;
-                margin: 0 auto;
+                position:fixed;
+                width: 100%;
                 text-align: center;
+            }
+
+            .footer{ 
+                position: fixed;     
+                text-align: center;    
+                bottom: 0px; 
+                width: 100%;
             }
 
         </style>
@@ -37,19 +44,26 @@
         <div id="container">
         <h1>Witamy na stronie internetowej naszej biblioteki!</h1>
         <p>
-            <div style="text-align: right;">
-                <input id="searchedBook" name="Search" type="search" size="30" maxlength="30" placeholder="Wyszukaj książkę">
+        <input id="searchedBook" name="Search" type="search" size="30" maxlength="30" placeholder="Wyszukaj książkę">
+        </p>
+
+        <p> 
+            <img src="https://images.unsplash.com/photo-1589998059171-988d887df646?auto=format&fit=crop&q=80&w=1776&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+            alt="Zdjęcie książki" width="450" height="256">
+            <div style="text-align:center;">
+            <button class="btn btn-primary btn-lg">Zaloguj się</button>
+            <button class="btn btn-primary btn-lg">Rejestracja</button>
+            
+                <div class="footer">
+                    <p>
+                        <a href="mailto:jasina10@gmail.com?subject=Kontakt">Kontakt e-mail</a>
+                    </p>
+                    <p>
+                        Politechnika Wrocławska, 2023
+                    </p>
+                </div>
             </div>
         </p>
-    <img src="https://images.unsplash.com/photo-1589998059171-988d887df646?auto=format&fit=crop&q=80&w=1776&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-          alt="Zdjęcie książki" width="450" height="256">
-    <p> 
-        <div style="text-align:center;">
-        <button class="btn btn-primary btn-lg">Zaloguj się</button>
-        <button class="btn btn-primary btn-lg">Rejestracja</button>
-        <p>Politechnika Wrocławska, 2023</p>
-        </div>
-    </p>
     </div>
     </body>
 </html>
