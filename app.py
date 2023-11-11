@@ -1,10 +1,19 @@
 from flask import Flask
 from flask import render_template
+from flask_mysqldb import MySQL
 
 app = Flask(__name__)
 
+app.config['MYSQL_HOST'] = 'sql11.freemysqlhosting.net'
+app.config['MYSQL_USER'] = 'sql11661169'
+app.config['MYSQL_PASSWORD'] = 'hcJM5mgLXi'
+app.config['MYSQL_DB'] = 'sql11661169'
+
+mysql = MySQL(app)
+
+
 @app.route("/")
-def hello_world():
+def hello_world():  
     return render_template('home.html')
 
 @app.route("/login")
@@ -17,6 +26,12 @@ def register():
 
 @app.route("/search")
 def search():
+    cursor = mysql.connection.cursor()
+    cursor.execute(''' SELECT * FROM `autorzy` ''')
+    data = cursor.fetchall()
+    mysql.connection.commit()
+    cursor.close()
+    print(data)
     return render_template("search.html", code=302)
 
 if __name__ == '__main__':
