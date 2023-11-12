@@ -11,7 +11,6 @@ app.config['MYSQL_DB'] = 'sql11661169'
 
 mysql = MySQL(app)
 
-
 @app.route("/")
 def hello_world():  
     return render_template('home.html')
