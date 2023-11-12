@@ -1,0 +1,41 @@
+body {
+    text-align: center;
+}
+form {
+    display: inline-block;
+}
+h1{
+    font-size: 40px;
+    font-family:'Times New Roman', Times, serif;
+    font-weight: normal;
+    color: rgb(0, 0, 0);
+    text-align: center;
+}
+
+p{
+    font-family: 'Times New Roman', Times, serif;
+    color: rgb(red, rgb(15, 145, 15), blue);
+    /*text-align: left;*/
+}
+
+.bodytext{
+    font-family: 'Times New Roman', Times, serif;
+    color: rgb(rgb(177, 50, 50), green, blue);
+}
+
+#button{
+    text-align: end;
+}
+
+#container{
+                position:fixed;
+                width: 100%;
+                text-align: center;
+            }
+
+.footer{
+                position: fixed;
+                text-align: center;
+                bottom: 0px;
+                width: 100%;
+            }
