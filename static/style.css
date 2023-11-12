@@ -25,7 +25,7 @@ h1 {
 
 p {
     font-family: 'Times New Roman', Times, serif;
-    color: rgb(15, 145, 15);
+    color: rgb(0, 0, 0);
 }
 
 .footer {
@@ -38,4 +38,11 @@ p {
 
 .content {
     margin: 0 auto;
+}
+
+.top-left-button {
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 10px;
 }
