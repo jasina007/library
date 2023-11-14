@@ -13,12 +13,11 @@
 <body>
     <div id="container">
         <h1>Witamy na stronie internetowej naszej biblioteki!</h1>
-        <p>
-            <input id="searchedBook" name="Search" type="search" size="30" maxlength="30" placeholder="Wpisz tytuł...">
-            <a href="/search">
-                <button>Szukaj</button>
-            </a>
-        </p>
+        <form action="/search" method="POST">
+            <input id="searchedBook" name="searchedBook" type="search" size="30" maxlength="30" placeholder="Wpisz tytuł...">
+            <button type="submit">Szukaj</button>
+        </form>
+
         <div class="centered-content">
             <img src="https://images.unsplash.com/photo-1589998059171-988d887df646?auto=format&fit=crop&q=80&w=1776&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Zdjęcie książki" width="450" height="256">
