@@ -26,12 +26,11 @@ def register():
 @app.route("/search")
 def search():
     cursor = mysql.connection.cursor()
-    cursor.execute(''' SELECT * FROM `autorzy` ''')
-    data = cursor.fetchall()
+    cursor.execute(''' SELECT * FROM `ksiazki` ''')
+    books = cursor.fetchall()
     mysql.connection.commit()
     cursor.close()
-    print(data)
-    return render_template("search.html", code=302)
+    return render_template("search.html", books= books, code=302)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
