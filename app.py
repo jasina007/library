@@ -54,10 +54,18 @@ def loggedIn():
             session['loggedin'] = True
             session['id'] = account[0]
             session['username'] = account[4]
-            return render_template("loggedUser.html", name=account[1], surname=account[2])
+            return render_template("loggedReader.html", name=account[1], surname=account[2])
         else:
-            flash('Wprowadzono niepoprawny email lub hasło')
-            return redirect('/login')
+            cursor.execute('SELECT * FROM `pracownicy` WHERE Email = %s AND Haslo = %s', (email, hashPassword))
+            accountWorker = cursor.fetchone()
+            if accountWorker:
+                session['loggedin'] = True
+                session['id'] = accountWorker[0]
+                session['username'] = accountWorker[4]
+                return render_template("loggedWorker.html", name=accountWorker[1], surname=accountWorker[2])
+            else:
+                flash('Wprowadzono niepoprawny email lub hasło')
+                return redirect('/login')
 
 
 @app.route("/loggedOut")
