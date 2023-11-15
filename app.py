@@ -13,6 +13,14 @@ mysql = MySQL(app)
 
 app.secret_key = ' '
 
+#function in order to reduce repeating of code
+def setSession(account, fileToOpen):
+    session['loggedin'] = True
+    session['id'] = account[0]
+    session['username'] = account[4]
+    return render_template(fileToOpen, name=account[1], surname=account[2])
+
+
 @app.route("/")
 def hello_world():
     return render_template('index.html')
@@ -51,18 +59,12 @@ def loggedIn():
         account = cursor.fetchone()
         
         if account: 
-            session['loggedin'] = True
-            session['id'] = account[0]
-            session['username'] = account[4]
-            return render_template("loggedReader.html", name=account[1], surname=account[2])
+            return setSession(account, "loggedReader.html")
         else:
             cursor.execute('SELECT * FROM `pracownicy` WHERE Email = %s AND Haslo = %s', (email, hashPassword))
             accountWorker = cursor.fetchone()
             if accountWorker:
-                session['loggedin'] = True
-                session['id'] = accountWorker[0]
-                session['username'] = accountWorker[4]
-                return render_template("loggedWorker.html", name=accountWorker[1], surname=accountWorker[2])
+                return setSession(accountWorker, "loggedWorker.html")
             else:
                 flash('Wprowadzono niepoprawny email lub hasło')
                 return redirect('/login')
