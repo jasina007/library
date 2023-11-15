@@ -11,23 +11,31 @@
     <link rel="stylesheet" href="static/style.css" />
 </head>
 <body>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+     {% for message in messages %}
+        {{ message }}
+     {% endfor %}
+  {% endif %}
+  {% endwith %}
+  
   <a href="/" class="mr-auto">
     <button class='btn btn-primary'>
         Powrót
     </button>
   </a>
     <h1>Logowanie</h1>
-    <form>
+    <form action="/loggedUser/reader" method="POST">
   <!-- Email input -->
   <div class="form-outline mb-4">
     <label class="form-label" for="form2Example1">Adres e-mail</label>
-    <input type="email" id="form2Example1" class="form-control" required/>
+    <input type="email" name="email" id="email" class="form-control" required/>
   </div>
 
   <!-- Password input -->
   <div class="form-outline mb-4">
     <label class="form-label" for="form2Example2">Hasło</label>
-    <input type="password" id="form2Example2" class="form-control" required/>
+    <input type="password" id="password" name="password" class="form-control" required/>
   </div>
 
   <!-- 2 column grid layout for inline styling -->
@@ -47,7 +55,7 @@
   </div>
 
   <!-- Submit button -->
-  <button type="button" class="btn btn-primary btn-block mb-4">Zaloguj się</button>
+  <input type="submit" value="Zaloguj się">
 
   <!-- Register buttons -->
   <div class="text-center">
