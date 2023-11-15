@@ -40,7 +40,7 @@ def search():
 
 
 
-@app.route("/loggedUser/reader", methods=['POST'])
+@app.route("/loggedUser/reader", methods=['POST', 'GET'])
 def loggedIn():
     if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
         email = request.form['email']
@@ -67,6 +67,25 @@ def logout():
     session.pop('username', None)
     return render_template("index.html")
 
+
+@app.route("/register", methods=['GET', 'POST'])
+def registering():
+    if request.method == 'POST':
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        phone = request.form['phone']
+        email = request.form['email']
+        password = request.form['password']
+
+        cursor = mysql.connection.cursor()
+        hashed_password = hashlib.md5(password.encode()).hexdigest()
+        cursor.execute("INSERT INTO czytelnicy (ImieCz, NazwiskoCz, NrTel, Email, Haslo) VALUES (%s, %s, %s, %s, %s)",
+                       (first_name, last_name, phone, email, hashed_password))
+        mysql.connection.commit()
+        cursor.close()
+        flash('Your account has been created!', 'success')
+        return redirect(url_for('log_in'))
+    return render_template("register.html")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
