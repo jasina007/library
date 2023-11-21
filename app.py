@@ -4,10 +4,10 @@ import hashlib
 
 app = Flask(__name__)
 
-app.config['MYSQL_HOST'] = 'sql11.freemysqlhosting.net'
-app.config['MYSQL_USER'] = 'sql11661169'
-app.config['MYSQL_PASSWORD'] = 'hcJM5mgLXi'
-app.config['MYSQL_DB'] = 'sql11661169'
+app.config['MYSQL_HOST'] = 'sql.freedb.tech'
+app.config['MYSQL_USER'] = 'freedb_jasina'
+app.config['MYSQL_PASSWORD'] = 'v4Y33xteRgdvC@G'
+app.config['MYSQL_DB'] = 'freedb_Biblioteka'
 
 mysql = MySQL(app)
 
