@@ -16,6 +16,15 @@
       Powrót
     </button>
   </a>
+
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+     {% for message in messages %}
+        {{ message }}
+     {% endfor %}
+  {% endif %}
+  {% endwith %}
+  
     <h1>Rejestracja</h1>
     <form method="POST" action="/register"> <!-- Specify the method and action -->
   <!-- Name input -->
