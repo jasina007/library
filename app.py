@@ -3,6 +3,7 @@ from flask_mysqldb import MySQL
 from MySQLdb import IntegrityError
 import hashlib
 
+
 app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'sql.freedb.tech'
@@ -10,9 +11,16 @@ app.config['MYSQL_USER'] = 'freedb_jasina'
 app.config['MYSQL_PASSWORD'] = 'v4Y33xteRgdvC@G'
 app.config['MYSQL_DB'] = 'freedb_Biblioteka'
 
+
 mysql = MySQL(app)
 
 app.secret_key = ' '
+
+
+@app.before_request
+def before_request():
+    if 'loggedin' not in session:
+        session['loggedin'] = None
 
 #function in order to reduce repeating of code
 def setSession(account, fileToOpen):
@@ -51,29 +59,29 @@ def search():
 
 @app.route("/loggedUser/reader", methods=['POST', 'GET'])
 def loggedIn():
-    if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
-        email = request.form['email']
-        password = request.form['password']
-        hashPassword = hashlib.md5(password.encode()).hexdigest()
-        cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM `czytelnicy` WHERE Email = %s AND Haslo = %s', (email, hashPassword))
-        account = cursor.fetchone()
-        
-        if account: 
-            return setSession(account, "loggedReader.html")
-        else:
-            cursor.execute('SELECT * FROM `pracownicy` WHERE Email = %s AND Haslo = %s', (email, hashPassword))
-            accountWorker = cursor.fetchone()
-            if accountWorker:
-                return setSession(accountWorker, "loggedWorker.html")
+        if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
+            email = request.form['email']
+            password = request.form['password']
+            hashPassword = hashlib.md5(password.encode()).hexdigest()
+            cursor = mysql.connection.cursor()
+            cursor.execute('SELECT * FROM `czytelnicy` WHERE Email = %s AND Haslo = %s', (email, hashPassword))
+            account = cursor.fetchone()
+            
+            if account: 
+                return setSession(account, "loggedReader.html")
             else:
-                flash('Wprowadzono niepoprawny email lub hasło')
-                return redirect('/login')
+                cursor.execute('SELECT * FROM `pracownicy` WHERE Email = %s AND Haslo = %s', (email, hashPassword))
+                accountWorker = cursor.fetchone()
+                if accountWorker:
+                    return setSession(accountWorker, "loggedWorker.html")
+                else:
+                    flash('Wprowadzono niepoprawny email lub hasło')
+                    return redirect('/login')
 
 
 @app.route("/loggedOut")
 def logout():
-    session.pop('loggedin', None)
+    session.pop('loggedin', False) 
     session.pop('id', None)
     session.pop('username', None)
     return render_template("index.html")
@@ -102,9 +110,19 @@ def registering():
         flash('Your e-mail was used in another account! Please enter another e-mail', 'error')
         return redirect(url_for('register'))
 
+
+#method which not to allow unwanted user to go to websites for logged users only
+def isUserLoggedIn(website):
+    if session.get('loggedin'):
+        return render_template(website)
+    else:
+        flash("You don't have a permission. Please log-in firstly")
+        return redirect(url_for('log_in'))
+    
 @app.route("/newBook")
 def newBook():
-    return render_template("addBook.html")
+    return isUserLoggedIn("addBook.html")
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
