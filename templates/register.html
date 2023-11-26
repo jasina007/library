@@ -48,6 +48,14 @@
     <input type="password" id="form2Example5" name="password" class="form-control" required/>
   </div>
 
+  <!-- Password input -->
+  <div class="form-outline mb-4">
+    <label class="form-label" for="form2Example2">Potwierdź hasło</label>
+    <input type="password" id="form2Example6" name="password2" class="form-control" required/>
+  </div>
+
+  <span id="password-error" style="color: red;"></span>
+
   <!-- Submit button -->
   <button type="submit" class="btn btn-primary btn-block mb-4">Zarejestruj się</button>
 
@@ -57,4 +65,16 @@
   </div>
 </form>
 </body>
+<script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const password1 = document.getElementById('form2Example5').value;
+            const password2 = document.getElementById('form2Example6').value;
+            if (password1 !== password2) {
+                e.preventDefault();
+                document.getElementById('form2Example5').value = "";
+                document.getElementById('form2Example6').value = "";
+                document.getElementById('password-error').textContent = "Passwords do not match.";
+            }
+        });
+    </script>
 </html>
