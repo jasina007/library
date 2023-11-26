@@ -102,5 +102,9 @@ def registering():
         flash('Your e-mail was used in another account! Please enter another e-mail', 'error')
         return redirect(url_for('register'))
 
+@app.route("/newBook")
+def newBook():
+    return render_template("addBook.html")
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
