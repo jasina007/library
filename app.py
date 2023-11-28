@@ -67,15 +67,25 @@ def loggedIn():
         cursor = mysql.connection.cursor()
         cursor.execute('SELECT * FROM `czytelnicy` WHERE Email = %s AND Haslo = %s', (email, hashPassword))
         account = cursor.fetchone()
+        session['email'] = email
+        session['hashPassword'] = hashPassword
 
         if account:
             return setSession(account, "loggedReader.html")
         else:
-            cursor.execute('SELECT * FROM `pracownicy` WHERE Email = %s AND Haslo = %s', (email, hashPassword))
-            accountWorker = cursor.fetchone()
-            if accountWorker:
+            return redirect(url_for("loggedInWorker"))     
+
+
+@app.route("/loggedUser/worker")
+def loggedInWorker():
+        email = session.get('email')
+        hashPassword = session.get('hashPassword')
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT * FROM `pracownicy` WHERE Email = %s AND Haslo = %s', (email, hashPassword))
+        accountWorker = cursor.fetchone()
+        if accountWorker:
                 return setSession(accountWorker, "loggedWorker.html")
-            else:
+        else:
                 flash('Wprowadzono niepoprawny email lub hasło')
                 return redirect('/login')
 
