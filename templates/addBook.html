@@ -11,6 +11,15 @@
     <link rel="stylesheet" href="static/style.css" />
 </head>
 <body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+       {% for message in messages %}
+          {{ message }}
+       {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    
     <h1>Dodaj nową książkę do systemu</h1>
     <form method="POST" action ="/newBook">
         <div class="form-outline mb-4">
