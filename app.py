@@ -4,10 +4,11 @@ from MySQLdb import IntegrityError
 from flask import Flask, request, render_template, session, flash, redirect, url_for
 from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
-from wtforms import SelectField, DateField
+from wtforms import SelectField, DateField, TextAreaField
 from wtforms.validators import DataRequired
 from datetime import date
 import mysql.connector
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -221,6 +222,58 @@ def addBorrow():
 
     return isUserLoggedIn('addBorrow.html', form=form)
 
+
+class ReturnBorrowForm(FlaskForm):
+    borrow = SelectField('borrow', validators=[DataRequired()])
+    returnDate = DateField('returnDate', validators=[DataRequired()])
+    comments = TextAreaField('comments')
+
+
+@app.route('/returnBorrow', methods=['GET', 'POST'])
+def returnBorrow():
+    cursor = mysql.connection.cursor()
+
+    # Modified SQL query to fetch necessary columns
+    cursor.execute('''
+        SELECT w.IdWyp, c.ImieCz, c.NazwiskoCz, k.Tytul, w.DataWyp
+        FROM wypozyczenia w
+        JOIN czytelnicy c ON w.IdCz = c.IdCz
+        JOIN ksiazki k ON w.ISBN = k.ISBN
+        WHERE w.FaktDataZwr IS NULL
+    ''')
+
+    borrows = [
+        (str(borrow[0]), f"{borrow[1]} {borrow[2]} - {borrow[3]} - {borrow[4]}")
+        for borrow in cursor.fetchall()
+    ]
+    
+    form = ReturnBorrowForm()
+    form.borrow.choices = borrows
+
+    if form.validate_on_submit():
+        selected_borrow_id = form.borrow.data
+        selected_borrow = next((borrow for borrow in borrows if borrow[0] == selected_borrow_id), None)
+        return_date = form.returnDate.data
+        borrow_date = datetime.strptime(selected_borrow[-1].split()[-1], '%Y-%m-%d').date()
+
+        if return_date > date.today():
+            flash('Data faktycznego zwrotu nie może być późniejsza od obecnej', 'error')
+            return redirect(url_for('returnBorrow'))
+        if return_date < borrow_date:
+            flash('Data faktycznego zwrotu nie może być wcześniejsza od daty wypożyczenia ', 'error')
+            return redirect(url_for('returnBorrow'))
+
+        # Insert the borrow record into the database
+        sql = "UPDATE wypozyczenia SET FaktDataZwr = %s, Uwagi = %s, IdPOdb = %s WHERE IdWyp = %s"
+        cursor.execute(
+            sql, (form.returnDate.data, form.comments.data, session.get("id"), selected_borrow_id)
+        )
+        mysql.connection.commit()
+
+        flash('Dodano pomyślnie', 'success')
+        return redirect(url_for('loggedInWorker'))
+
+    return isUserLoggedIn('returnBorrow.html', form=form)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
