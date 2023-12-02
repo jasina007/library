@@ -1,1 +1,1 @@
-isUserLoggedIn
+/loggedUser/worker

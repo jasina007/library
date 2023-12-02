@@ -131,9 +131,9 @@ def registering():
 
 
 # method which not to allow unwanted user to go to websites for logged users only
-def isUserLoggedIn(website):
+def isUserLoggedIn(website, **kwargs):
     if session.get('loggedin'):
-        return render_template(website)
+        return render_template(website, **kwargs)
     else:
         flash("You don't have a permission. Please log-in firstly")
         return redirect(url_for('log_in'))
@@ -178,7 +178,7 @@ def newBook():
         cursor.close()
         flash('New book added!', 'success')
         return redirect(url_for('newBook'))
-    return render_template("addBook.html")
+    return isUserLoggedIn("addBook.html")
 
 
 class BorrowForm(FlaskForm):
@@ -219,7 +219,7 @@ def addBorrow():
         flash('Dodano pomyślnie', 'success')
         return redirect(url_for('loggedInWorker'))
 
-    return render_template('addBorrow.html', form=form)
+    return isUserLoggedIn('addBorrow.html', form=form)
 
 
 if __name__ == '__main__':

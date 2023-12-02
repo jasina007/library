@@ -19,7 +19,12 @@
     {% endif %}
     {% endwith %}
 
-    
+      
+  <a href="/loggedUser/worker" class="mr-auto">
+    <button class='btn btn-primary'>
+        Powrót
+    </button>
+  </a>
     <h1>Dodaj nowe wypożyczenie do systemu</h1>
     <form method="POST" action ="/newBorrow" name="form">
         {{ form.hidden_tag() }}
