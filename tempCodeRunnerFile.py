@@ -1,1 +1,1 @@
-/loggedUser/reader
+isUserLoggedIn

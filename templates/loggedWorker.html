@@ -9,6 +9,13 @@
 integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <link rel="stylesheet" href="static/style.css" />
 <body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+       {% for message in messages %}
+          {{ message }}
+       {% endfor %}
+    {% endif %}
+    {% endwith %}
     <h1>Pomyślnie zalogowano pracownika naszej biblioteki: {{name}} {{surname}}</h1>
     <a href="/newBook" class="mr-auto">
         <button class='btn btn-primary'>Dodaj książkę</button>

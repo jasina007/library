@@ -3,6 +3,11 @@ import hashlib
 from MySQLdb import IntegrityError
 from flask import Flask, request, render_template, session, flash, redirect, url_for
 from flask_mysqldb import MySQL
+from flask_wtf import FlaskForm
+from wtforms import SelectField, DateField
+from wtforms.validators import DataRequired
+from datetime import date
+import mysql.connector
 
 app = Flask(__name__)
 
@@ -71,6 +76,7 @@ def loggedIn():
         session['hashPassword'] = hashPassword
 
         if account:
+            session['id'] = account[0]
             return setSession(account, "loggedReader.html")
         else:
             return redirect(url_for("loggedInWorker"))     
@@ -84,6 +90,7 @@ def loggedInWorker():
         cursor.execute('SELECT * FROM `pracownicy` WHERE Email = %s AND Haslo = %s', (email, hashPassword))
         accountWorker = cursor.fetchone()
         if accountWorker:
+                session['id'] = accountWorker[0]
                 return setSession(accountWorker, "loggedWorker.html")
         else:
                 flash('Wprowadzono niepoprawny email lub hasło')
@@ -172,6 +179,47 @@ def newBook():
         flash('New book added!', 'success')
         return redirect(url_for('newBook'))
     return render_template("addBook.html")
+
+
+class BorrowForm(FlaskForm):
+    reader = SelectField('idCz', validators=[DataRequired()])
+    book = SelectField('isbn', validators=[DataRequired()])
+    borrow_date = DateField('borrowDate', validators=[DataRequired()])
+    return_date = DateField('returnDate', validators=[DataRequired()])
+
+
+@app.route('/newBorrow', methods=['GET', 'POST'])
+def addBorrow():
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT IdCz, ImieCz, NazwiskoCz FROM czytelnicy')
+    readers = [(str(reader[0]), f"{reader[1]} {reader[2]}") for reader in cursor.fetchall()]
+    cursor.execute('SELECT ISBN, Tytul FROM ksiazki')
+    books = [(book[0], book[1]) for book in cursor.fetchall()]
+
+    form = BorrowForm()
+    form.reader.choices = readers
+    form.book.choices = books
+
+    if form.validate_on_submit():
+        borrow_date = form.borrow_date.data
+        return_date = form.return_date.data
+        if borrow_date > date.today():
+            flash('Data wypożyczenia nie może być późniejsza od obecnej', 'error')
+            return redirect(url_for('addBorrow'))
+        if return_date < date.today():
+            flash('Data zwrotu nie może być wcześniejsza od obecnej', 'error')
+            return redirect(url_for('addBorrow'))
+        # Insert the borrow record into the database
+        cursor.execute(
+            'INSERT INTO wypozyczenia (IdCz, ISBN, DataWyp, OczekDataZwr, IdPWyd) VALUES (%s, %s, %s, %s, %s)',
+            (form.reader.data, form.book.data, form.borrow_date.data, form.return_date.data, session.get('id'))
+        )
+        mysql.connection.commit()
+
+        flash('Dodano pomyślnie', 'success')
+        return redirect(url_for('loggedInWorker'))
+
+    return render_template('addBorrow.html', form=form)
 
 
 if __name__ == '__main__':
