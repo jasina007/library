@@ -37,6 +37,18 @@
             <label class="form-label" for="title">Tytuł</label>
             {{ form.title() }}
         </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="year">Rok wydania</label>
+            {{ form.year() }}
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="publisher">Wydawnictwo</label>
+            {{ form.publisher() }}
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="available_copies">Liczba dostępnych egzemplarzy</label>
+            {{ form.available_copies() }}
+        </div>
 
         <button type="submit" class="btn btn-primary btn-block mb-4">Zatwierdź</button>
     </form>

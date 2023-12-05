@@ -6,8 +6,8 @@ from MySQLdb import IntegrityError
 from flask import Flask, request, render_template, session, flash, redirect, url_for
 from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
-from wtforms import SelectField, DateField, TextAreaField, StringField
-from wtforms.validators import DataRequired
+from wtforms import SelectField, DateField, TextAreaField, StringField, IntegerField
+from wtforms.validators import DataRequired, Optional
 
 app = Flask(__name__)
 
@@ -278,6 +278,9 @@ def returnBorrow():
 class EditBookForm(FlaskForm):
     book = SelectField('isbn', validators=[DataRequired()])
     title = StringField('title', validators=[DataRequired()])
+    year = IntegerField('year', validators=[Optional()])
+    publisher = StringField('publisher', validators=[Optional()])
+    available_copies = IntegerField('available_copies', validators=[Optional()])
 
 
 @app.route('/editBook', methods=['GET', 'POST'])
@@ -285,8 +288,8 @@ def edit_book():
     cursor = mysql.connection.cursor()
 
     # Fetch existing books from the database
-    cursor.execute('SELECT ISBN, Tytul FROM ksiazki')
-    books = [(book[0], book[1]) for book in cursor.fetchall()]
+    cursor.execute('SELECT ISBN, Tytul, RokWyd, Wydawnictwo, LiczDostEgz FROM ksiazki')
+    books = [(book[0], f"{book[0]} - {book[1]} - {book[2]} - {book[3]} - {book[4]}") for book in cursor.fetchall()]
 
     form = EditBookForm()
     form.book.choices = books
@@ -294,12 +297,16 @@ def edit_book():
     if form.validate_on_submit():
         isbn = form.book.data
         title = form.title.data
+        rokwyd = form.year.data
+        wydawnictwo = form.publisher.data
+        liczdostegz = form.available_copies.data
 
         # Update the book record in the database
-        cursor.execute('UPDATE ksiazki SET Tytul = %s WHERE ISBN = %s', (title, isbn))
+        cursor.execute('UPDATE ksiazki SET Tytul = %s, RokWyd = %s, Wydawnictwo = %s, LiczDostEgz = %s WHERE ISBN = %s',
+                       (title, rokwyd, wydawnictwo, liczdostegz, isbn))
         mysql.connection.commit()
 
-        flash('Zaktualizowano pomyślnie', 'success')
+        flash('Dodano pomyślnie', 'success')
         return redirect(url_for('loggedInWorker'))
 
     return isUserLoggedIn('editBook.html', form=form)
