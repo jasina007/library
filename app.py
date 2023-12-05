@@ -1,14 +1,13 @@
 import hashlib
+from datetime import date
+from datetime import datetime
 
 from MySQLdb import IntegrityError
 from flask import Flask, request, render_template, session, flash, redirect, url_for
 from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
-from wtforms import SelectField, DateField, TextAreaField
+from wtforms import SelectField, DateField, TextAreaField, StringField
 from wtforms.validators import DataRequired
-from datetime import date
-import mysql.connector
-from datetime import datetime
 
 app = Flask(__name__)
 
@@ -80,22 +79,22 @@ def loggedIn():
             session['id'] = account[0]
             return setSession(account, "loggedReader.html")
         else:
-            return redirect(url_for("loggedInWorker"))     
+            return redirect(url_for("loggedInWorker"))
 
 
 @app.route("/loggedUser/worker")
 def loggedInWorker():
-        email = session.get('email')
-        hashPassword = session.get('hashPassword')
-        cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM `pracownicy` WHERE Email = %s AND Haslo = %s', (email, hashPassword))
-        accountWorker = cursor.fetchone()
-        if accountWorker:
-                session['id'] = accountWorker[0]
-                return setSession(accountWorker, "loggedWorker.html")
-        else:
-                flash('Wprowadzono niepoprawny email lub hasło')
-                return redirect('/login')
+    email = session.get('email')
+    hashPassword = session.get('hashPassword')
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT * FROM `pracownicy` WHERE Email = %s AND Haslo = %s', (email, hashPassword))
+    accountWorker = cursor.fetchone()
+    if accountWorker:
+        session['id'] = accountWorker[0]
+        return setSession(accountWorker, "loggedWorker.html")
+    else:
+        flash('Wprowadzono niepoprawny email lub hasło')
+        return redirect('/login')
 
 
 @app.route("/loggedOut")
@@ -246,7 +245,7 @@ def returnBorrow():
         (str(borrow[0]), f"{borrow[1]} {borrow[2]} - {borrow[3]} - {borrow[4]}")
         for borrow in cursor.fetchall()
     ]
-    
+
     form = ReturnBorrowForm()
     form.borrow.choices = borrows
 
@@ -274,6 +273,37 @@ def returnBorrow():
         return redirect(url_for('loggedInWorker'))
 
     return isUserLoggedIn('returnBorrow.html', form=form)
+
+
+class EditBookForm(FlaskForm):
+    book = SelectField('isbn', validators=[DataRequired()])
+    title = StringField('title', validators=[DataRequired()])
+
+
+@app.route('/editBook', methods=['GET', 'POST'])
+def edit_book():
+    cursor = mysql.connection.cursor()
+
+    # Fetch existing books from the database
+    cursor.execute('SELECT ISBN, Tytul FROM ksiazki')
+    books = [(book[0], book[1]) for book in cursor.fetchall()]
+
+    form = EditBookForm()
+    form.book.choices = books
+
+    if form.validate_on_submit():
+        isbn = form.book.data
+        title = form.title.data
+
+        # Update the book record in the database
+        cursor.execute('UPDATE ksiazki SET Tytul = %s WHERE ISBN = %s', (title, isbn))
+        mysql.connection.commit()
+
+        flash('Zaktualizowano pomyślnie', 'success')
+        return redirect(url_for('loggedInWorker'))
+
+    return isUserLoggedIn('editBook.html', form=form)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

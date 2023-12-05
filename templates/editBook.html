@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="Edycja Edit Książka Book">
+    <meta name="description" content="Strona edycji istniejącej książki w systemie">
+    <title>Edycja książki</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/style.css" />
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+       {% for message in messages %}
+          {{ message }}
+       {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <a href="/loggedUser/worker" class="mr-auto">
+        <button class='btn btn-primary'>
+            Powrót
+        </button>
+    </a>
+
+    <h1>Edytuj książkę w systemie</h1>
+    <form method="POST" action="/editBook" name="form">
+        {{ form.hidden_tag() }}
+
+        <div class="form-outline mb-4">
+            <label class="form-label" for="isbn">ISBN książki</label>
+            {{ form.book() }}
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="title">Tytuł</label>
+            {{ form.title() }}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mb-4">Zatwierdź</button>
+    </form>
+</body>
+</html>
