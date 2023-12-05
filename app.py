@@ -275,5 +275,10 @@ def returnBorrow():
 
     return isUserLoggedIn('returnBorrow.html', form=form)
 
+
+@app.route("/editBook")
+def editBook():
+    return render_template("editBook.html")
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
