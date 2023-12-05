@@ -295,6 +295,17 @@ def edit_book():
     form.book.choices = books
 
     if form.validate_on_submit():
+
+        if 'delete_book' in request.form and request.form['delete_book'] == 'true':
+            # Delete the book record from the database
+            isbn_to_delete = form.book.data
+            cursor.execute('DELETE FROM autorstwa WHERE ISBN = %s', (isbn_to_delete,))
+            cursor.execute('DELETE FROM ksiazki WHERE ISBN = %s', (isbn_to_delete,))
+            mysql.connection.commit()
+
+            flash('Książka została usunięta pomyślnie', 'success')
+            return redirect(url_for('loggedInWorker'))
+
         isbn = form.book.data
         title = form.title.data
         rokwyd = form.year.data

@@ -51,6 +51,29 @@
         </div>
 
         <button type="submit" class="btn btn-primary btn-block mb-4">Zatwierdź</button>
+        <button type="button" class="btn btn-danger btn-block mb-4" id="deleteButton">Usuń książkę</button>
     </form>
+<!-- Add this script at the end of the body section in your HTML -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButton = document.getElementById('deleteButton');
+
+        if (deleteButton) {
+            deleteButton.addEventListener('click', function() {
+                if (confirm('Czy na pewno chcesz usunąć tę książkę?')) {
+                    // If the user confirms, submit the form with an additional parameter to indicate deletion
+                    const deleteInput = document.createElement('input');
+                    deleteInput.type = 'hidden';
+                    deleteInput.name = 'delete_book';
+                    deleteInput.value = 'true';
+                    document.form.appendChild(deleteInput);
+
+                    document.form.submit();
+                }
+            });
+        }
+    });
+</script>
+
 </body>
 </html>
