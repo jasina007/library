@@ -50,6 +50,28 @@ def register():
     return render_template("register.html")
 
 
+@app.route("/readerBorrows")
+def extension():
+    idCz = session.get('id')
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+    "SELECT k.Tytul, w.DataWyp, w.OczekDataZwr, w.FaktDataZwr FROM `wypozyczenia` AS w INNER JOIN `ksiazki` AS k ON w.ISBN = k.ISBN WHERE w.IdCz = %s",  (idCz,))
+    borrows = cursor.fetchall()
+    cursor.close()
+
+    #create new list with borrows to set None values to message to user
+    newBorrows = []
+    #checking if FaktDataZwr attribute is None
+    for row in borrows:
+        currentBorrowList = list(row)
+        if(currentBorrowList[-1] is None):
+            currentBorrowList[-1] = "Nie zwrócono"
+        newBorrows.append(tuple(currentBorrowList))
+        
+    borrows = newBorrows
+    return render_template("readerBorrows.html", borrows=borrows)
+
+
 @app.route("/search", methods=['GET', 'POST'])
 def search():
     search_term = request.form.get('searchedBook')
@@ -186,6 +208,7 @@ class BorrowForm(FlaskForm):
     book = SelectField('isbn', validators=[DataRequired()])
     borrow_date = DateField('borrowDate', validators=[DataRequired()])
     return_date = DateField('returnDate', validators=[DataRequired()])
+
 
 
 @app.route('/newBorrow', methods=['GET', 'POST'])
