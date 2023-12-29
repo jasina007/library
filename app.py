@@ -50,28 +50,6 @@ def register():
     return render_template("register.html")
 
 
-@app.route("/readerBorrows")
-def extension():
-    idCz = session.get('id')
-    cursor = mysql.connection.cursor()
-    cursor.execute(
-    "SELECT k.Tytul, w.DataWyp, w.OczekDataZwr, w.FaktDataZwr FROM `wypozyczenia` AS w INNER JOIN `ksiazki` AS k ON w.ISBN = k.ISBN WHERE w.IdCz = %s",  (idCz,))
-    borrows = cursor.fetchall()
-    cursor.close()
-
-    #create new list with borrows to set None values to message to user
-    newBorrows = []
-    #checking if FaktDataZwr attribute is None
-    for row in borrows:
-        currentBorrowList = list(row)
-        if(currentBorrowList[-1] is None):
-            currentBorrowList[-1] = "Nie zwrócono"
-        newBorrows.append(tuple(currentBorrowList))
-        
-    borrows = newBorrows
-    return render_template("readerBorrows.html", borrows=borrows)
-
-
 @app.route("/search", methods=['GET', 'POST'])
 def search():
     search_term = request.form.get('searchedBook')
@@ -102,6 +80,8 @@ def loggedIn():
             return setSession(account, "loggedReader.html")
         else:
             return redirect(url_for("loggedInWorker"))
+    elif session.get('loggedin'):
+        return render_template("loggedReader.html")
 
 
 @app.route("/loggedUser/worker")
@@ -344,6 +324,80 @@ def edit_book():
         return redirect(url_for('loggedInWorker'))
 
     return isUserLoggedIn('editBook.html', form=form)
+
+
+#create new list with borrows to set None values to message to user
+def setNoneToUserMessage(borrows):
+    newBorrows = []
+    #checking if FaktDataZwr attribute is None
+    for row in borrows:
+        currentBorrowList = list(row)
+        if(currentBorrowList[-1] is None):
+            currentBorrowList[-1] = "Nie zwrócono"
+        newBorrows.append(tuple(currentBorrowList))
+    return newBorrows
+
+
+@app.route("/readerBorrows")
+def readerBorrows():
+    idCz = session.get('id')
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+    "SELECT k.Tytul, w.DataWyp, w.OczekDataZwr, w.FaktDataZwr FROM `wypozyczenia` AS w INNER JOIN `ksiazki` AS k ON w.ISBN = k.ISBN WHERE w.IdCz = %s",  (idCz,))
+    borrows = cursor.fetchall()
+    cursor.close()
+    borrows = setNoneToUserMessage(borrows)
+    return isUserLoggedIn("readerBorrows.html", borrows=borrows)
+
+
+class ExtendBorrowForm(FlaskForm):
+    borrow = SelectField('borrow', validators=[DataRequired()])
+    newReturnDate = DateField('newReturnDate', validators=[DataRequired()])
+
+    
+
+@app.route("/extendBorrow", methods=['GET', 'POST'])
+def extendBorrow():
+    idCz = session.get('id')
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT w.IdWyp, k.Tytul, w.DataWyp, w.OczekDataZwr, w.FaktDataZwr FROM `wypozyczenia` AS w INNER JOIN `ksiazki` AS k ON w.ISBN = k.ISBN WHERE w.IdCz = %s",  (idCz,))
+    
+    borrows = [
+        (str(borrow[0]), f"{borrow[1]} - {borrow[2]} - {borrow[3]} - {borrow[4]}")
+        for borrow in cursor.fetchall()
+    ]
+    
+    form = ExtendBorrowForm()
+    form.borrow.choices = borrows
+    
+    if form.validate_on_submit():
+        selected_borrow_id = form.borrow.data
+        newReturnDate = form.newReturnDate.data
+        
+        #get selected borrow from database with needed data
+        cursor.execute("SELECT w.IdWyp, k.Tytul, w.DataWyp, w.OczekDataZwr, w.FaktDataZwr FROM `wypozyczenia` AS w INNER JOIN `ksiazki` AS k ON w.ISBN = k.ISBN WHERE w.IdWyp = %s",  (selected_borrow_id,))
+        selected_borrow = cursor.fetchall()[0]
+        
+        #checking correction of entered data
+        if selected_borrow[-1] is not None:
+            flash('Nie można przedłużyć wyposażenia już zakończonego', 'error')
+            return redirect(url_for('extendBorrow'))
+        if newReturnDate <= selected_borrow[3]:
+            flash('Nowa data musi być późniejsza', 'error')
+            return redirect(url_for('extendBorrow'))
+
+        # Insert the borrow record into the database
+        sql = "UPDATE wypozyczenia SET OczekDataZwr = %s WHERE IdWyp = %s"
+        cursor.execute(
+            sql, (newReturnDate, selected_borrow_id)
+        )
+        mysql.connection.commit()
+
+        flash('Przedłużono pomyślnie', 'success')
+        return redirect(url_for('loggedIn'))
+
+    return isUserLoggedIn('extendBorrow.html', form=form)
+
 
 
 if __name__ == '__main__':

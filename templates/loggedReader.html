@@ -9,9 +9,19 @@
 integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <link rel="stylesheet" href="static/style.css" />
 <body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+       {% for message in messages %}
+          {{ message }}
+       {% endfor %}
+    {% endif %}
+    {% endwith %}
     <h1>Pomyślnie zalogowano czytelnika {{name}} {{surname}} do biblioteki</h1>
     <a href="/readerBorrows" style="align-items: center;">
         <button type="button" class="btn btn-primary mb-4">Wyświetl swoje wypożyczenia</button>
+    </a>
+    <a href="/extendBorrow" style="align-items: center;">
+        <button type="button" class="btn btn-primary mb-4">Przedłuż wypożyczenie</button>
     </a>
     <a href="/loggedOut" style="align-items: center;">
         <button type="button" class="btn btn-primary mb-4">Wyloguj się</button>
