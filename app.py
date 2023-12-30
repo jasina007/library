@@ -154,7 +154,7 @@ def registering():
             return redirect(url_for('log_in'))
         return render_template("register.html")
     except IntegrityError:
-        flash('Your e-mail was used in another account! Please enter another e-mail', 'error')
+        flash('Twój e-mail został użyty już w innym koncie! Użyj innego e-maila.', 'error')
         return redirect(url_for('register'))
 
 
@@ -163,7 +163,7 @@ def isUserLoggedIn(loggingType: str, website, **kwargs):
     if session.get(loggingType):
         return render_template(website, **kwargs)
     else:
-        flash("You don't have a permission. Please log-in firstly")
+        flash("Nie posiadasz odpowiednich uprawnień. Zaloguj się.")
         return redirect(url_for('log_in'))
     
     
@@ -431,6 +431,39 @@ def extendBorrow():
 
     return isReaderLoggedIn('extendBorrow.html', form=form)
 
+
+def changePassword(tableName, urlForPassword, keyAttributeName, urlForMainPage):
+    idCz = session.get('id')
+    password = request.form['password']
+    cursor = mysql.connection.cursor()
+    cursor.execute(f"SELECT Haslo FROM {tableName} WHERE {keyAttributeName} = %s", (idCz,))
+    current_password = cursor.fetchall()[0][0]
+    hashed_password = hashlib.md5(password.encode()).hexdigest()
+    
+    #check if new password equals current in database
+    if current_password == hashed_password:
+        flash('Nowe hasło musi być inne od aktualnego', 'error')
+        return redirect(url_for(urlForPassword))
+    
+    cursor.execute(f"UPDATE {tableName} SET Haslo = %s WHERE {keyAttributeName} = %s",(hashed_password, idCz))
+    mysql.connection.commit()
+    cursor.close()
+    flash('Zmieniono hasło pomyślnie', 'success')
+    return redirect(url_for(urlForMainPage))
+
+
+@app.route("/changeReaderPassword", methods=['GET', 'POST'])
+def changeReaderPassword():
+    if request.method == 'POST':
+        return changePassword('czytelnicy', 'changeReaderPassword', 'IdCz', 'loggedIn')
+    return isReaderLoggedIn("changeReaderPassword.html")
+
+
+@app.route("/changeWorkerPassword", methods=['GET', 'POST'])
+def changeWorkerPassword():
+    if request.method == 'POST':
+        return changePassword('pracownicy', 'changeWorkerPassword', 'IdP','loggedInWorker')
+    return isWorkerLoggedIn("changeWorkerPassword.html")
 
 
 if __name__ == '__main__':

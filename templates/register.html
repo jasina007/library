@@ -53,13 +53,13 @@
 
    <!-- Password input -->
   <div class="form-outline mb-4">
-    <label class="form-label" for="form2Example2">Hasło</label>
+    <label class="form-label" for="form2Example5">Hasło</label>
     <input type="password" id="form2Example5" name="password" class="form-control" minlength="6" maxlength="255" required/>
   </div>
 
   <!-- Password input -->
   <div class="form-outline mb-4">
-    <label class="form-label" for="form2Example2">Potwierdź hasło</label>
+    <label class="form-label" for="form2Example6">Potwierdź hasło</label>
     <input type="password" id="form2Example6" name="password2" class="form-control" minlength="6" maxlength="255" required/>
   </div>
 
@@ -82,8 +82,8 @@
                 e.preventDefault();
                 document.getElementById('form2Example5').value = "";
                 document.getElementById('form2Example6').value = "";
-                document.getElementById('password-error').textContent = "Passwords do not match.";
+                document.getElementById('password-error').textContent = "Wprowadzone hasła są różne";
             }
         });
-    </script>
+</script>
 </html>
