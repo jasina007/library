@@ -23,16 +23,28 @@ app.secret_key = ' '
 
 @app.before_request
 def before_request():
-    if 'loggedin' not in session:
-        session['loggedin'] = None
+    if 'loggedInReader' not in session  and 'loggedInWorker' not in session:
+        session['loggedInReader'] = None
+        session['loggedInWorker'] = None
 
 
 # function in order to reduce repeating of code
 def setSession(account, fileToOpen):
-    session['loggedin'] = True
     session['id'] = account[0]
     session['username'] = account[4]
     return render_template(fileToOpen, name=account[1], surname=account[2])
+
+
+def setSessionReader(account, fileToOpen):
+    session['loggedInReader'] = True
+    session['loggedInWorker'] = False
+    return setSession(account, fileToOpen)
+    
+    
+def setSessionWorker(account, fileToOpen):
+    session['loggedInReader'] = False
+    session['loggedInWorker'] = True
+    return setSession(account, fileToOpen)
 
 
 @app.route("/")
@@ -63,6 +75,11 @@ def search():
     return render_template("search.html", books=books)
 
 
+def incorrectLogging():
+    flash('Wprowadzono niepoprawny email lub hasło')
+    return redirect('/login')
+
+
 @app.route("/loggedUser/reader", methods=['POST', 'GET'])
 def loggedIn():
     if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
@@ -77,15 +94,22 @@ def loggedIn():
 
         if account:
             session['id'] = account[0]
-            return setSession(account, "loggedReader.html")
+            return setSessionReader(account, "loggedReader.html")
         else:
             return redirect(url_for("loggedInWorker"))
-    elif session.get('loggedin'):
+    #check if user(reader) was already logged in
+    elif session.get('loggedInReader'):
         return render_template("loggedReader.html")
+    else:
+        return incorrectLogging()
 
 
 @app.route("/loggedUser/worker")
 def loggedInWorker():
+    #check if user(worker) was already logged in
+    if session.get('loggedInWorker'):
+        return render_template("loggedWorker.html")
+    
     email = session.get('email')
     hashPassword = session.get('hashPassword')
     cursor = mysql.connection.cursor()
@@ -93,17 +117,19 @@ def loggedInWorker():
     accountWorker = cursor.fetchone()
     if accountWorker:
         session['id'] = accountWorker[0]
-        return setSession(accountWorker, "loggedWorker.html")
+        return setSessionWorker(accountWorker, "loggedWorker.html")
     else:
-        flash('Wprowadzono niepoprawny email lub hasło')
-        return redirect('/login')
+        return incorrectLogging()
 
-
+        
 @app.route("/loggedOut")
 def logout():
-    session.pop('loggedin', False)
+    session.pop('loggedInReader', False)
+    session.pop('loggedInWorker', False)
     session.pop('id', None)
     session.pop('username', None)
+    session.pop('email', None)
+    session.pop('hashPassword', None)
     return render_template("index.html")
 
 
@@ -133,18 +159,25 @@ def registering():
 
 
 # method which not to allow unwanted user to go to websites for logged users only
-def isUserLoggedIn(website, **kwargs):
-    if session.get('loggedin'):
+def isUserLoggedIn(loggingType: str, website, **kwargs):
+    if session.get(loggingType):
         return render_template(website, **kwargs)
     else:
         flash("You don't have a permission. Please log-in firstly")
         return redirect(url_for('log_in'))
+    
+    
+def isReaderLoggedIn(website, **kwargs):
+    return isUserLoggedIn('loggedInReader', website, **kwargs)
+    
+
+def isWorkerLoggedIn(website, **kwargs):
+    return isUserLoggedIn('loggedInWorker', website, **kwargs) 
 
 
 @app.route("/newBook", methods=['GET', 'POST'])
 def newBook():
     if request.method == 'POST':
-        print(request.form)
 
         isbn = request.form['isbn']
         title = request.form['title']
@@ -178,9 +211,9 @@ def newBook():
         # Commit the changes to the database
         mysql.connection.commit()
         cursor.close()
-        flash('New book added!', 'success')
-        return redirect(url_for('newBook'))
-    return isUserLoggedIn("addBook.html")
+        flash('Dodano książkę pomyślnie!', 'success')
+        return redirect(url_for('loggedInWorker'))
+    return isWorkerLoggedIn("addBook.html")
 
 
 class BorrowForm(FlaskForm):
@@ -222,7 +255,7 @@ def addBorrow():
         flash('Dodano pomyślnie', 'success')
         return redirect(url_for('loggedInWorker'))
 
-    return isUserLoggedIn('addBorrow.html', form=form)
+    return isWorkerLoggedIn('addBorrow.html', form=form)
 
 
 class ReturnBorrowForm(FlaskForm):
@@ -275,7 +308,7 @@ def returnBorrow():
         flash('Dodano pomyślnie', 'success')
         return redirect(url_for('loggedInWorker'))
 
-    return isUserLoggedIn('returnBorrow.html', form=form)
+    return isWorkerLoggedIn('returnBorrow.html', form=form)
 
 
 class EditBookForm(FlaskForm):
@@ -323,7 +356,7 @@ def edit_book():
         flash('Dodano pomyślnie', 'success')
         return redirect(url_for('loggedInWorker'))
 
-    return isUserLoggedIn('editBook.html', form=form)
+    return isWorkerLoggedIn('editBook.html', form=form)
 
 
 #create new list with borrows to set None values to message to user
@@ -347,7 +380,7 @@ def readerBorrows():
     borrows = cursor.fetchall()
     cursor.close()
     borrows = setNoneToUserMessage(borrows)
-    return isUserLoggedIn("readerBorrows.html", borrows=borrows)
+    return isReaderLoggedIn("readerBorrows.html", borrows=borrows)
 
 
 class ExtendBorrowForm(FlaskForm):
@@ -396,7 +429,7 @@ def extendBorrow():
         flash('Przedłużono pomyślnie', 'success')
         return redirect(url_for('loggedIn'))
 
-    return isUserLoggedIn('extendBorrow.html', form=form)
+    return isReaderLoggedIn('extendBorrow.html', form=form)
 
 
 
