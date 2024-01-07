@@ -1,9 +1,10 @@
 import hashlib
 from datetime import date
 from datetime import datetime
+from fpdf import FPDF
 
 from MySQLdb import IntegrityError
-from flask import Flask, request, render_template, session, flash, redirect, url_for
+from flask import Flask, request, render_template, session, flash, redirect, url_for, Response
 from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
 from wtforms import SelectField, DateField, TextAreaField, StringField, IntegerField
@@ -465,6 +466,160 @@ def changeWorkerPassword():
         return changePassword('pracownicy', 'changeWorkerPassword', 'IdP','loggedInWorker')
     return isWorkerLoggedIn("changeWorkerPassword.html")
 
+
+@app.route("/reports")
+def genReports():
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT DISTINCT EXTRACT(YEAR FROM DataWyp) FROM `wypozyczenia`;')
+    years = [row[0] for row in cursor.fetchall()]
+    cursor.execute("SELECT * FROM `autorzy`")
+    authors = [author for author in cursor.fetchall()]
+    return isWorkerLoggedIn("reports.html", availableYears= years, authors= authors)
+
+
+def convertNumberToMonth(number):
+    match number:
+        case 1:
+            return "Styczeń"
+        case 2:
+            return "Luty"
+        case 3:
+            return "Marzec"
+        case 4:
+            return "Kwiecień"
+        case 5:
+            return "Maj"
+        case 6:
+            return "Czerwiec"
+        case 7:
+            return "Lipiec"
+        case 8:
+            return "Sierpień"
+        case 9:
+            return "Wrzesień"
+        case 10:
+            return "Październik"
+        case 11:
+            return "Listopad"
+        case 12:
+            return "Grudzień"
+
+
+@app.route("/monthReaders", methods=['GET', 'POST'])
+def monthReadersReport():
+    chosenYear = request.form['chosenYear']
+    cursor = mysql.connection.cursor()
+    cursor.execute(f"SELECT EXTRACT(MONTH FROM w.DataWyp) AS miesiac, COUNT(DISTINCT c.IdCz) AS liczba_czytelnikow FROM `wypozyczenia` AS w INNER JOIN `czytelnicy` AS c ON w.IdCz = c.IdCz WHERE EXTRACT(YEAR FROM w.DataWyp) = %s GROUP BY EXTRACT(MONTH FROM w.DataWyp) ORDER BY EXTRACT(MONTH FROM w.DataWyp);", (chosenYear, ))
+    result = cursor.fetchall()
+    
+    #report parametres
+    pdf = FPDF()
+    pdf.add_page()
+    pageWidth = pdf.w - 2*pdf.l_margin
+    pdf.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
+    pdf.set_font('DejaVu', '', 12)
+    pdf.cell(pageWidth, 0.0, f'Liczba czytelników w danych miesiącach w roku {chosenYear}', align='C')
+    pdf.ln(20)
+    col_width = pageWidth/2
+    pdf.ln(1)
+    th = pdf.font_size
+    
+    #headlines
+    pdf.cell(col_width, th, "Miesiąc", border=1)
+    pdf.cell(col_width, th, "Liczba czytelników", border=1)
+    pdf.ln(th)
+    
+    for row in result:
+        pdf.cell(col_width, th, convertNumberToMonth(row[0]), border=1)
+        pdf.cell(col_width, th, str(row[1]), border=1)
+        pdf.ln(th)
+        
+    cursor.close()
+    return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'attachment; filename=raport1.pdf'})
+
+
+
+@app.route("/workerBorrows", methods=['GET', 'POST'])
+def workerBorrowsReport():
+    chosenWorker = request.form['workerType']
+    cursor = mysql.connection.cursor()
+    
+    if chosenWorker == 'borrower':
+        workerType = "IdPWyd"
+        workerName = "wypożyczający"
+    else:
+        workerType = 'IdPOdb'
+        workerName = "odbierający"
+        
+    cursor.execute(f"SELECT w.IdP AS id_pracownika, w.NazwiskoP AS nazwisko_pracownika, w.ImieP AS imie_pracownika, COUNT(b.{workerType}) AS liczba_wypozyczen FROM `pracownicy` w LEFT JOIN `wypozyczenia` b ON b.{workerType} = w.IdP GROUP BY w.IdP, w.NazwiskoP ORDER BY w.IdP;")
+    result = cursor.fetchall()
+    
+    #report parametres
+    pdf = FPDF()
+    pdf.add_page()
+    pageWidth = pdf.w - 2*pdf.l_margin
+    #pdf.set_font('Arial', 'B', 20.0)
+    pdf.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
+    pdf.set_font('DejaVu', '', 12)
+    pdf.cell(pageWidth, 0.0, f'Liczba wystapien kazdego pracownika w wypozyczeniach jako {workerName}', align='C')
+    pdf.ln(20)
+
+    col_width = pageWidth/4
+    pdf.ln(1)
+    th = pdf.font_size
+    
+    #headlines
+    pdf.cell(col_width, th, "ID pracownika", border=1)
+    pdf.cell(col_width, th, "Nazwisko pracownika", border=1)
+    pdf.cell(col_width, th, "Imię pracownika", border=1)
+    pdf.cell(col_width, th, "Liczba wypozyczen", border=1)
+    pdf.ln(th)
+    
+    for row in result:
+        pdf.cell(col_width, th, str(row[0]), border=1)
+        pdf.cell(col_width, th, row[1], border=1)
+        pdf.cell(col_width, th, row[2], border=1)
+        pdf.cell(col_width, th, str(row[3]), border=1)
+        pdf.ln(th)
+        
+    cursor.close()
+    return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'attachment; filename=raport2.pdf'})
+
+
+@app.route("/authorBooks", methods=['GET', 'POST'])
+def authorBooksReport():
+    chosenAuthor = request.form['allAuthors']
+    splittedAuthor = chosenAuthor.strip('()').split(', ')
+    tupleAuthor = tuple(splittedAuthor)
+    cursor = mysql.connection.cursor()
+    cursor.execute(f"SELECT k.Tytul, k.LiczDostEgz FROM ksiazki k JOIN autorstwa a ON k.ISBN = a.ISBN JOIN autorzy aut ON a.IdA = aut.IdA WHERE aut.IdA = %s;", (str(tupleAuthor[0]), ))
+    result = cursor.fetchall()
+    
+    #report parametres
+    pdf = FPDF()
+    pdf.add_page()
+    pageWidth = pdf.w - 2*pdf.l_margin
+    pdf.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
+    pdf.set_font('DejaVu', '', 12)
+    pdf.cell(pageWidth, 0.0, f'Książki autora {str(tupleAuthor[1])} {str(tupleAuthor[2])} dostępne w bibliotece w podanej liczbie egzemplarzy', align='C')
+    pdf.ln(20)
+    col_width = pageWidth/2
+    pdf.ln(1)
+    th = pdf.font_size
+    
+    #headlines
+    pdf.cell(col_width, th, "Tytuł książki", border=1)
+    pdf.cell(col_width, th, "Dostępne egzemplarze", border=1)
+    pdf.ln(th)
+    
+    for row in result:
+        print(row)
+        pdf.cell(col_width, th, row[0], border=1)
+        pdf.cell(col_width, th, str(row[1]), border=1)
+        pdf.ln(th) 
+        
+    cursor.close()
+    return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'attachment; filename=raport3.pdf'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
