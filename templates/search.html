@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pl">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="Książki books dostępne available">
+<meta name="description" content="Strona pokazująca wyniki wyszukiwania książki">
+<head>
+    <title>Wyszukiwarka</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/style.css" />
+    <style>
+        h1{
+            font-size: 60px;
+            font-family:'Times New Roman', Times, serif;
+            font-weight: normal;
+            color: rgb(0, 0, 0);
+            text-align: center;
+        }
+
+        .bodytext{
+            font-family: 'Times New Roman', Times, serif;
+            color: rgb(rgb(177, 50, 50), green, blue);
+        }
+
+        #container{
+            max-width: 720px;
+            margin: 0 auto;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <form action="/search" method="POST">
+        <input id="searchedBook" name="searchedBook" type="search" size="30" maxlength="30" placeholder="Wpisz tytuł...">
+        <button type="submit">Szukaj</button>
+    </form>
+
+    <h1>Wyniki wyszukiwania:</h1>
+
+    <a href="/" class="mr-auto">
+        <button class='btn btn-primary'>
+            Powrót
+        </button>
+    </a>
+        <table id="tableBooks">
+            <thead>
+            <tr>
+                <th>Tytuł</th>
+                <th>Rok wydania</th>
+                <th>Wydawnictwo</th>
+                <th>Ilość dostępnych egzemplarzy</th>
+                <th>ISBN</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td>{{book[0]}}</td>
+                    <td>{{book[1]}}</td>
+                    <td>{{book[2]}}</td>
+                    <td>{{book[3]}}</td>
+                    <td>{{book[4]}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+</body>

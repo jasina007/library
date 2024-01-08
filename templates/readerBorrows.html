@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pl">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="Użytkownik user borrows wypożyczenia">
+<meta name="description" content="Strona wyświetlająca wypożyczenia zalogowanego czytelnika">
+<head>
+    <title>Wypożyczenia czytelnika</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/style.css" />
+    <style>
+        h1{
+            font-size: 60px;
+            font-family:'Times New Roman', Times, serif;
+            font-weight: normal;
+            color: rgb(0, 0, 0);
+            text-align: center;
+        }
+
+        .bodytext{
+            font-family: 'Times New Roman', Times, serif;
+            color: rgb(rgb(177, 50, 50), green, blue);
+        }
+
+        #container{
+            max-width: 720px;
+            margin: 0 auto;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Twoje wypożyczenia:</h1>
+
+    <a href="/loggedUser/reader" class="mr-auto">
+        <button class='btn btn-primary'>
+            Powrót
+        </button>
+    </a>
+        <table id="tableBorrows">
+            <thead>
+            <tr>
+                <th>Tytuł książki</th>
+                <th>Data wypożyczenia</th>
+                <th>Oczekiwana data zwrotu</th>
+                <th>Faktyczna data zwrotu</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for borrow in borrows %}
+                <tr>
+                    <td>{{borrow[0]}}</td>
+                    <td>{{borrow[1]}}</td>
+                    <td>{{borrow[2]}}</td>
+                    <td>{{borrow[3]}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+</body>
+</html>

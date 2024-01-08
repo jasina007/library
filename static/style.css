@@ -1,0 +1,69 @@
+
+h1 {
+    font-size: 40px;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: normal;
+    color: rgb(0, 0, 0);
+    margin-top: 10px;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#container {
+    text-align: center;
+}
+
+.centered-content {
+    text-align: center;
+}
+
+
+p {
+    font-family: 'Times New Roman', Times, serif;
+    color: rgb(0, 0, 0);
+}
+
+.footer {
+    position: fixed;
+    text-align: center;
+    bottom: 0;
+    left: 0; /* Add left: 0 to center horizontally */
+    width: 100%;
+}
+
+.content {
+    margin: 0 auto;
+}
+
+.top-left-button {
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 10px;
+}
+
+.bordered-div {
+    border: 2px solid black;
+    padding: 25px; 
+    width: 500px
+  }
+
+#tableBooks{
+    align-items: center;
+    border: 2px solid black;
+    align-self: center;
+    margin-inline: 5px;
+    width: 1000px;
+}
+
+th, td{
+    border: 2px solid black;
+    width: 10px;
+}

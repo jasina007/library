@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pl">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="Logowanie login hasło log-in">
+<meta name="description" content="Strona logowania do systemu">
+<title>Zalogowano</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link rel="stylesheet" href="static/style.css" />
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+       {% for message in messages %}
+          {{ message }}
+       {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <h1>Pomyślnie zalogowano pracownika naszej biblioteki: {{name}} {{surname}}</h1>
+    <a href="/newBook" class="mr-auto">
+        <button class='btn btn-primary'>Dodaj książkę</button>
+    </a>
+    <a href="/newBorrow" style="align-items: center;">
+        <button type="button" class="btn btn-primary mb-4">Dodaj wypożyczenie</button>
+    </a>
+    <a href="/editBorrow" style="align-items: center;">
+        <button type="button" class="btn btn-primary mb-4">Edytuj wypożyczenie</button>
+    </a>
+    <a href="/returnBorrow" style="align-items: center;">
+        <button type="button" class="btn btn-primary mb-4">Zarejestruj zwrot wypożyczenia</button>
+    </a>
+    <a href="/editBook" style="align-items: center;">
+        <button type="button" class="btn btn-primary mb-4">Edytuj książkę</button>
+    </a>
+    <a href="/reports" style="align-items: center;">
+        <button type="button" class="btn btn-primary mb-4">Wygeneruj raport</button>
+    </a>
+    <a href="/changeWorkerPassword" style="align-items: center;">
+        <button type="button" class="btn btn-primary mb-4">Zmień hasło</button>
+    </a>
+    <a href="/loggedOut" style="align-items: center;">
+        <button type="button" class="btn btn-primary mb-4">Wyloguj się</button>
+    </a>
+</body>

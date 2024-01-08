@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pl">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="Logowanie login hasło log-in">
+<meta name="description" content="Strona logowania do systemu">
+<head>
+    <title>Logowanie</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/style.css" />
+</head>
+<body>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+     {% for message in messages %}
+        {{ message }}
+     {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+    <h1>Logowanie</h1>
+    <form action="/loggedUser/reader" method="POST">
+  <!-- Email input -->
+  <div class="form-outline mb-4">
+    <label class="form-label" for="form2Example1">Adres e-mail</label>
+    <input type="email" name="email" id="email" class="form-control" required/>
+  </div>
+
+  <!-- Password input -->
+  <div class="form-outline mb-4">
+    <label class="form-label" for="form2Example2">Hasło</label>
+    <input type="password" id="password" name="password" class="form-control" minlength="6" required/>
+  </div>
+
+  <!-- 2 column grid layout for inline styling -->
+  <div class="row mb-4">
+
+    <div class="col">
+      <!-- Simple link -->
+      <a href="#!">Zapomniałeś hasła?</a>
+    </div>
+  </div>
+
+  <!-- Submit button -->
+  <button type="submit" class="btn btn-primary btn-block mb-4">Zaloguj się</button>
+
+  <!-- Register buttons -->
+  <div class="text-center">
+    <p>Nie masz konta? <a href="/register">Zarejestruj się</a></p>
+  </div>
+</form>
+</body>
+</html>

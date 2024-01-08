@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="Ksiazka Book Nowa New">
+<meta name="description" content="Strona dodawania nowej ksiazki do systemu">
+<head>
+    <title>Dodawanie nowej książki</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/style.css" />
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+       {% for message in messages %}
+          {{ message }}
+       {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <a href="/loggedUser/worker" class="mr-auto">
+        <button class='btn btn-primary'>
+            Powrót
+        </button>
+      </a>
+    <h1>Dodaj nową książkę do systemu</h1>
+    <form method="POST" action ="/newBook">
+        <div class="form-outline mb-4">
+            <label class="form-label" for="isbn">Numer ISBN</label>
+            <input type="text" id="isbn" name="isbn" class="form-control" maxlength="13" required/>
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="title">Tytuł</label>
+            <input type="text" id="title" name="title" class="form-control" maxlength="255" required/>
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="authorName">Imię autora</label>
+            <input type="text" id="authorName" name="authorName" class="form-control" maxlength="30" required/>
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="authorSurname">Nazwisko autora</label>
+            <input type="text" id="authorSurname" name="authorSurname" class="form-control" maxlength="30" required/>
+        </div>
+        <div class="form-outline mb-4" >
+            <label class="form-label" for="releaseYear">Rok wydania</label>
+            <input type="number" id="releaseYear" name="releaseYear" class="form-control"  min="0" max="2024" required/>
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="publisher">Wydawnictwo</label>
+            <input type="text" id="publisher" name="publisher" class="form-control" maxlength="255" required/>
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="availableBooks">Liczba dostępnych egzemplarzy</label>
+            <input type="number" id="availableBooks" name="availableBooks" class="form-control" min="0" required/>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block mb-4">Zatwierdź</button>
+    </form>
+</body>
