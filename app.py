@@ -302,7 +302,7 @@ def editBorrow():
 
         if 'delete_borrow' in request.form and request.form['delete_borrow'] == 'true':
             idWyp_to_delete = form.borrow.data
-            cursor.execute('DELETE FROM wypozyczenia WHERE ISBN = %s', (idWyp_to_delete,))
+            cursor.execute('DELETE FROM wypozyczenia WHERE IdWyp= %s', (idWyp_to_delete,))
             mysql.connection.commit()
 
             flash('Wypożyczenie zostało usunięte pomyślnie', 'success')
@@ -314,14 +314,21 @@ def editBorrow():
         dataWyp = form.borrowDate.data
         oczekDataZwr = form.returnDate.data
         
-        
-        if dataWyp > date.today():
-            return incorrectBorrowDate('editBorrow')
-        if oczekDataZwr < date.today():
-            return incorrectReturnDate('editBorrow')
+        if dataWyp != None and oczekDataZwr != None:
+            if dataWyp > date.today():
+                return incorrectBorrowDate('editBorrow')
+            if oczekDataZwr < date.today():
+                return incorrectReturnDate('editBorrow')
 
-        cursor.execute('UPDATE wypozyczenia SET IdCz = %s, ISBN = %s, DataWyp = %s, OczekDataZwr = %s WHERE IdWyp = %s',
-                       (idCz, isbn, dataWyp, oczekDataZwr, idWyp))
+            cursor.execute('UPDATE wypozyczenia SET IdCz = %s, ISBN = %s, DataWyp = %s, OczekDataZwr = %s WHERE IdWyp = %s',
+                        (idCz, isbn, dataWyp, oczekDataZwr, idWyp))
+        elif oczekDataZwr == None:
+            cursor.execute('UPDATE wypozyczenia SET IdCz = %s, ISBN = %s, DataWyp = %s WHERE IdWyp = %s',
+                       (idCz, isbn, dataWyp, idWyp))
+        else:
+            cursor.execute('UPDATE wypozyczenia SET IdCz = %s, ISBN = %s,  OczekDataZwr = %s WHERE IdWyp = %s',
+                       (idCz, isbn, oczekDataZwr, idWyp))
+        
         mysql.connection.commit()
 
         flash('Zedytowano pomyślnie wypożyczenie', 'success')
