@@ -258,11 +258,23 @@ def addBorrow():
             return incorrectBorrowDate('addBorrow')
         if return_date < date.today():
             return incorrectReturnDate('addBorrow')
+        
+        
+        cursor.execute(f'SELECT LiczDostEgz FROM ksiazki WHERE ISBN = {form.book.data}')
+        availableBooks = cursor.fetchone()
+        
+        if availableBooks and availableBooks[0] <= 0:
+            flash('Brak wolnych egzemplarzy wybranej książki', 'error')
+            return redirect(url_for('addBorrow'))
+            
         # Insert the borrow record into the database
         cursor.execute(
             'INSERT INTO wypozyczenia (IdCz, ISBN, DataWyp, OczekDataZwr, IdPWyd) VALUES (%s, %s, %s, %s, %s)',
-            (form.reader.data, form.book.data, form.borrow_date.data, form.return_date.data, session.get('id'))
+            (form.reader.data, form.book.data, borrow_date, return_date, session.get('id'))
         )
+        
+        newAvailableBooks = availableBooks[0] - 1
+        cursor.execute("UPDATE ksiazki SET LiczDostEgz = %s WHERE ISBN = %s", (newAvailableBooks, form.book.data))
         mysql.connection.commit()
 
         flash('Dodano pomyślnie', 'success')
@@ -371,6 +383,9 @@ def returnBorrow():
         selected_borrow = next((borrow for borrow in borrows if borrow[0] == selected_borrow_id), None)
         return_date = form.returnDate.data
         borrow_date = datetime.strptime(selected_borrow[-1].split()[-1], '%Y-%m-%d').date()
+        
+        cursor.execute(f"SELECT ISBN FROM wypozyczenia WHERE IdWyp = {selected_borrow_id}")
+        chosenBorrowIsbn = cursor.fetchone()[0]
 
         if return_date > date.today():
             flash('Data faktycznego zwrotu nie może być późniejsza od obecnej', 'error')
@@ -384,6 +399,9 @@ def returnBorrow():
         cursor.execute(
             sql, (form.returnDate.data, form.comments.data, session.get("id"), selected_borrow_id)
         )
+        
+        #change number of available books(plus 1)
+        cursor.execute(f"UPDATE ksiazki SET LiczDostEgz = LiczDostEgz + 1 WHERE ISBN = {chosenBorrowIsbn}")
         mysql.connection.commit()
 
         flash('Dodano pomyślnie', 'success')
