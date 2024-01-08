@@ -229,6 +229,14 @@ class BorrowForm(FlaskForm):
     return_date = DateField('returnDate', validators=[DataRequired()])
 
 
+def incorrectBorrowDate(urlTo):
+    flash('Data wypożyczenia nie może być późniejsza od obecnej', 'error')
+    return redirect(url_for(urlTo))
+
+def incorrectReturnDate(urlTo):
+    flash('Data zwrotu nie może być wcześniejsza od obecnej', 'error')
+    return redirect(url_for(urlTo))
+
 
 @app.route('/newBorrow', methods=['GET', 'POST'])
 def addBorrow():
@@ -245,12 +253,11 @@ def addBorrow():
     if form.validate_on_submit():
         borrow_date = form.borrow_date.data
         return_date = form.return_date.data
+        
         if borrow_date > date.today():
-            flash('Data wypożyczenia nie może być późniejsza od obecnej', 'error')
-            return redirect(url_for('addBorrow'))
+            return incorrectBorrowDate('addBorrow')
         if return_date < date.today():
-            flash('Data zwrotu nie może być wcześniejsza od obecnej', 'error')
-            return redirect(url_for('addBorrow'))
+            return incorrectReturnDate('addBorrow')
         # Insert the borrow record into the database
         cursor.execute(
             'INSERT INTO wypozyczenia (IdCz, ISBN, DataWyp, OczekDataZwr, IdPWyd) VALUES (%s, %s, %s, %s, %s)',
@@ -262,6 +269,65 @@ def addBorrow():
         return redirect(url_for('loggedInWorker'))
 
     return isWorkerLoggedIn('addBorrow.html', form=form)
+
+
+class EditBorrowForm(FlaskForm):
+    borrow = SelectField('borrow', validators=[DataRequired()])
+    readerId = SelectField('readerId', validators=[DataRequired()])
+    bookISBN = SelectField('bookISBN', validators=[DataRequired()])
+    borrowDate = DateField('borrowDate', validators=[Optional()])
+    returnDate = DateField('returnDate', validators=[Optional()])
+
+
+@app.route('/editBorrow', methods=['GET', 'POST'])
+def editBorrow():
+    cursor = mysql.connection.cursor()
+
+    # Fetch existing books from the database
+    cursor.execute('''SELECT w.IdWyp, c.ImieCz, c.NazwiskoCz, k.Tytul, w.DataWyp, w.OczekDataZwr FROM wypozyczenia w JOIN czytelnicy c ON w.IdCz = c.IdCz JOIN ksiazki k ON w.ISBN = k.ISBN''')
+    borrows= [(borrow[0], f"{borrow[0]} - {borrow[1]} {borrow[2]} - {borrow[3]} - {borrow[4]} - {borrow[5]}") for borrow in cursor.fetchall()]
+    
+    cursor.execute('SELECT IdCz, ImieCz, NazwiskoCz FROM czytelnicy')
+    readers = [(str(reader[0]), f"{reader[1]} {reader[2]}") for reader in cursor.fetchall()]
+    
+    cursor.execute('SELECT ISBN, Tytul FROM ksiazki')
+    books = [(book[0], book[1]) for book in cursor.fetchall()]
+
+    form = EditBorrowForm()
+    form.borrow.choices = borrows
+    form.readerId.choices = readers
+    form.bookISBN.choices = books
+
+    if form.validate_on_submit():
+
+        if 'delete_borrow' in request.form and request.form['delete_borrow'] == 'true':
+            idWyp_to_delete = form.borrow.data
+            cursor.execute('DELETE FROM wypozyczenia WHERE ISBN = %s', (idWyp_to_delete,))
+            mysql.connection.commit()
+
+            flash('Wypożyczenie zostało usunięte pomyślnie', 'success')
+            return redirect(url_for('loggedInWorker'))
+
+        idWyp = form.borrow.data
+        idCz = form.readerId.data
+        isbn = form.bookISBN.data
+        dataWyp = form.borrowDate.data
+        oczekDataZwr = form.returnDate.data
+        
+        
+        if dataWyp > date.today():
+            return incorrectBorrowDate('editBorrow')
+        if oczekDataZwr < date.today():
+            return incorrectReturnDate('editBorrow')
+
+        cursor.execute('UPDATE wypozyczenia SET IdCz = %s, ISBN = %s, DataWyp = %s, OczekDataZwr = %s WHERE IdWyp = %s',
+                       (idCz, isbn, dataWyp, oczekDataZwr, idWyp))
+        mysql.connection.commit()
+
+        flash('Zedytowano pomyślnie wypożyczenie', 'success')
+        return redirect(url_for('loggedInWorker'))
+
+    return isWorkerLoggedIn('editBorrow.html', form=form)
 
 
 class ReturnBorrowForm(FlaskForm):

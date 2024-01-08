@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pl">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="Wypożyczenie Borrow Edytuj Edit">
+<meta name="description" content="Strona edycji/usuwania wypożyczenia będącego w systemie">
+<head>
+    <title>Edycja wypożyczenia</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/style.css" />
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+       {% for message in messages %}
+          {{ message }}
+       {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <a href="/loggedUser/worker" class="mr-auto">
+        <button class='btn btn-primary'>
+            Powrót
+        </button>
+    </a>
+
+    <h1>Edytuj/usuń wypożyczenie</h1>
+    <form method="POST" action="/editBorrow" name="form">
+        {{ form.hidden_tag() }}
+        <div class="form-outline mb-4">
+            <label class="form-label" for="borrow">Wypożyczenie</label>
+            {{ form.borrow() }}
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="readerId">Czytelnik</label>
+            {{ form.readerId() }}
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="bookISBN">Książka</label>
+            {{ form.bookISBN() }}
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="borrowDate">Data wypożyczenia</label>
+            {{ form.borrowDate() }}
+        </div>
+        <div class="form-outline mb-4">
+            <label class="form-label" for="returnDate">Oczekiwana data zwrotu</label>
+            {{ form.returnDate() }}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mb-4">Zatwierdź</button>
+        <button type="button" class="btn btn-danger btn-block mb-4" id="deleteButton">Usuń wypożyczenie</button>
+    </form>
+<!-- Add this script at the end of the body section in your HTML -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButton = document.getElementById('deleteButton');
+
+        if (deleteButton) {
+            deleteButton.addEventListener('click', function() {
+                if (confirm('Czy na pewno chcesz usunąć to wypożyczenie?')) {
+                    const deleteInput = document.createElement('input');
+                    deleteInput.type = 'hidden';
+                    deleteInput.name = 'delete_borrow';
+                    deleteInput.value = 'true';
+                    document.form.appendChild(deleteInput);
+
+                    document.form.submit();
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
