@@ -322,12 +322,15 @@ def editBorrow():
 
             cursor.execute('UPDATE wypozyczenia SET IdCz = %s, ISBN = %s, DataWyp = %s, OczekDataZwr = %s WHERE IdWyp = %s',
                         (idCz, isbn, dataWyp, oczekDataZwr, idWyp))
-        elif oczekDataZwr == None:
+        elif oczekDataZwr == None and dataWyp != None:
             cursor.execute('UPDATE wypozyczenia SET IdCz = %s, ISBN = %s, DataWyp = %s WHERE IdWyp = %s',
                        (idCz, isbn, dataWyp, idWyp))
-        else:
+        elif oczekDataZwr != None and dataWyp == None:
             cursor.execute('UPDATE wypozyczenia SET IdCz = %s, ISBN = %s,  OczekDataZwr = %s WHERE IdWyp = %s',
                        (idCz, isbn, oczekDataZwr, idWyp))
+        else:
+            cursor.execute('UPDATE wypozyczenia SET IdCz = %s, ISBN = %s WHERE IdWyp = %s',
+                       (idCz, isbn, idWyp))
         
         mysql.connection.commit()
         flash('Zedytowano pomyślnie wypożyczenie', 'success')
@@ -558,7 +561,6 @@ def genReports():
     cursor.execute("SELECT * FROM `autorzy`")
     authors = [author for author in cursor.fetchall()]
     return isWorkerLoggedIn("reports.html", availableYears= years, authors= authors)
-
 
 
 #method which convert month integer to string(Polish word)
