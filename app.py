@@ -330,7 +330,6 @@ def editBorrow():
                        (idCz, isbn, oczekDataZwr, idWyp))
         
         mysql.connection.commit()
-
         flash('Zedytowano pomyślnie wypożyczenie', 'success')
         return redirect(url_for('loggedInWorker'))
 
@@ -392,7 +391,7 @@ def returnBorrow():
 
 class EditBookForm(FlaskForm):
     book = SelectField('isbn', validators=[DataRequired()])
-    title = StringField('title', validators=[DataRequired()])
+    title = StringField('title', validators=[Optional()])
     year = IntegerField('year', validators=[Optional()])
     publisher = StringField('publisher', validators=[Optional()])
     available_copies = IntegerField('available_copies', validators=[Optional()])
@@ -415,6 +414,7 @@ def edit_book():
             # Delete the book record from the database
             isbn_to_delete = form.book.data
             cursor.execute('DELETE FROM autorstwa WHERE ISBN = %s', (isbn_to_delete,))
+            cursor.execute('DELETE FROM wypozyczenia WHERE ISBN = %s', (isbn_to_delete,))
             cursor.execute('DELETE FROM ksiazki WHERE ISBN = %s', (isbn_to_delete,))
             mysql.connection.commit()
 
@@ -426,7 +426,13 @@ def edit_book():
         rokwyd = form.year.data
         wydawnictwo = form.publisher.data
         liczdostegz = form.available_copies.data
-
+        
+        #below checking is necessary when title is optional field
+        #and in this case it must be optional for easier deleting
+        if title == "":
+            flash('Należy podać tytuł edytowanej książki', 'error')
+            return redirect(url_for('edit_book'))
+            
         # Update the book record in the database
         cursor.execute('UPDATE ksiazki SET Tytul = %s, RokWyd = %s, Wydawnictwo = %s, LiczDostEgz = %s WHERE ISBN = %s',
                        (title, rokwyd, wydawnictwo, liczdostegz, isbn))
@@ -467,7 +473,6 @@ class ExtendBorrowForm(FlaskForm):
     newReturnDate = DateField('newReturnDate', validators=[DataRequired()])
 
     
-
 @app.route("/extendBorrow", methods=['GET', 'POST'])
 def extendBorrow():
     idCz = session.get('id')
