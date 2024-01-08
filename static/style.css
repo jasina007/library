@@ -49,6 +49,12 @@ p {
     margin: 10px;
 }
 
+.bordered-div {
+    border: 2px solid black;
+    padding: 25px; 
+    width: 500px
+  }
+
 #tableBooks{
     align-items: center;
     border: 2px solid black;

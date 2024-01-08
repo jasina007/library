@@ -482,6 +482,7 @@ def genReports():
     return isWorkerLoggedIn("reports.html", availableYears= years, authors= authors)
 
 
+
 #method which convert month integer to string(Polish word)
 def convertNumberToMonth(number):
         if number == 1:
@@ -508,6 +509,7 @@ def convertNumberToMonth(number):
             return "Listopad"
         elif number == 12:
             return "Grudzień"
+
 
 #method which set FPDF object and another related with it attributes
 def setFpdfObject(headline, columnsNumber):
@@ -584,6 +586,7 @@ def workerBorrowsReport():
         return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'attachment; filename=raport2.pdf'})
     except BadRequestKeyError:
         return noPermissions()
+
 
 
 @app.route("/authorBooks", methods=['GET', 'POST'])

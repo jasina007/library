@@ -17,34 +17,40 @@
         </button>
     </a>
     <h1>Wygeneruj raport o podanej tematyce</h1>
-    <form method="POST" action="/monthReaders" name="form" >
-        <select name="chosenYear">
-            {% for year in availableYears %}
-                <option value="{{ year }}">{{ year }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-primary btn-block mb-4">Miesięczne liczby czytelników w danym roku</button>
-    </form>
-    <form method="POST" action="/workerBorrows" name="form" >
-        <div class="mb-3">
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="workerType" id="borrower" value="borrower" checked>
-                <label class="form-check-label" for="borrower">Wypożyczający</label>
+    <div class="bordered-div">
+        <form method="POST" action="/monthReaders" name="form" >
+            <select name="chosenYear">
+                {% for year in availableYears %}
+                    <option value="{{ year }}">{{ year }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary btn-block mb-4">Miesięczne liczby czytelników w danym roku</button>
+        </form>
+    </div>
+    <div class="bordered-div">
+        <form method="POST" action="/workerBorrows" name="form" >
+            <div class="mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="workerType" id="borrower" value="borrower" checked>
+                    <label class="form-check-label" for="borrower">Wypożyczający</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="workerType" id="receiver" value="receiver">
+                    <label class="form-check-label" for="receiver">Odbierający</label>
+                </div>
             </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="workerType" id="receiver" value="receiver">
-                <label class="form-check-label" for="receiver">Odbierający</label>
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary btn-block mb-4">Ilości wypożyczeń każdego pracownika</button>
-    </form>
-    <form method="POST" action="/authorBooks" name="form">
-        <select name="allAuthors">
-            {% for author in authors %}
-                <option value="{{ author }}">{{ author }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-primary btn-block mb-4">Książki danego autora</button>
-    </form>
+            <button type="submit" class="btn btn-primary btn-block mb-4">Ilości wypożyczeń każdego pracownika</button>
+        </form>
+    </div>
+    <div class="bordered-div">
+        <form method="POST" action="/authorBooks" name="form">
+            <select name="allAuthors">
+                {% for author in authors %}
+                    <option value="{{ author }}">{{ author }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary btn-block mb-4">Książki danego autora</button>
+        </form>
+    </div>
 </body>
 </html>
