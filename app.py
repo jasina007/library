@@ -152,7 +152,7 @@ def registering():
                 (first_name, last_name, phone, email, hashed_password))
             mysql.connection.commit()
             cursor.close()
-            flash('Your account has been created!', 'success')
+            flash('Utworzono konto pomyślnie!', 'success')
             return redirect(url_for('log_in'))
         return render_template("register.html")
     except IntegrityError:
@@ -259,12 +259,15 @@ def addBorrow():
         if return_date < date.today():
             return incorrectReturnDate('addBorrow')
         
-        
-        cursor.execute(f'SELECT LiczDostEgz FROM ksiazki WHERE ISBN = {form.book.data}')
-        availableBooks = cursor.fetchone()
-        
-        if availableBooks and availableBooks[0] <= 0:
-            flash('Brak wolnych egzemplarzy wybranej książki', 'error')
+        try: #there can be catched exception because LiczDostEgz is optional
+            cursor.execute(f'SELECT LiczDostEgz FROM ksiazki WHERE ISBN = {form.book.data}')
+            availableBooks = cursor.fetchone()
+            
+            if availableBooks and availableBooks[0] <= 0:
+                flash('Brak wolnych egzemplarzy wybranej książki', 'error')
+                return redirect(url_for('addBorrow'))
+        except TypeError:
+            flash('Nie podano ilości wolnych egzemplarzy tej książki', 'error')
             return redirect(url_for('addBorrow'))
             
         # Insert the borrow record into the database
@@ -664,13 +667,13 @@ def workerBorrowsReport():
             
         cursor.execute(f"SELECT w.IdP AS id_pracownika, w.NazwiskoP AS nazwisko_pracownika, w.ImieP AS imie_pracownika, COUNT(b.{workerType}) AS liczba_wypozyczen FROM `pracownicy` w LEFT JOIN `wypozyczenia` b ON b.{workerType} = w.IdP GROUP BY w.IdP, w.NazwiskoP ORDER BY w.IdP;")
         result = cursor.fetchall() 
-        pdf, col_width, th = setFpdfObject(f'Liczba wystapień kazdego pracownika w wypozyczeniach jako {workerName}', 4)
+        pdf, col_width, th = setFpdfObject(f'Liczba wystapień kazdego pracownika w wypożyczeniach jako {workerName}', 4)
         
         #headlines
         pdf.cell(col_width, th, "ID pracownika", border=1)
         pdf.cell(col_width, th, "Nazwisko pracownika", border=1)
         pdf.cell(col_width, th, "Imię pracownika", border=1)
-        pdf.cell(col_width, th, "Liczba wypozyczen", border=1)
+        pdf.cell(col_width, th, "Liczba wypożyczeń", border=1)
         pdf.ln(th)
         
         for row in result:
