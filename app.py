@@ -299,7 +299,7 @@ def editBorrow():
     cursor = mysql.connection.cursor()
 
     # Fetch existing books from the database
-    cursor.execute('''SELECT w.IdWyp, c.ImieCz, c.NazwiskoCz, k.Tytul, w.DataWyp, w.OczekDataZwr FROM wypozyczenia w JOIN czytelnicy c ON w.IdCz = c.IdCz JOIN ksiazki k ON w.ISBN = k.ISBN''')
+    cursor.execute('''SELECT w.IdWyp, c.ImieCz, c.NazwiskoCz, k.Tytul, w.DataWyp, w.OczekDataZwr FROM wypozyczenia w JOIN czytelnicy c ON w.IdCz = c.IdCz JOIN ksiazki k ON w.ISBN = k.ISBN ORDER BY W.IdWyp''')
     borrows= [(borrow[0], f"{borrow[0]} - {borrow[1]} {borrow[2]} - {borrow[3]} - {borrow[4]} - {borrow[5]}") for borrow in cursor.fetchall()]
     
     cursor.execute('SELECT IdCz, ImieCz, NazwiskoCz FROM czytelnicy')
@@ -415,6 +415,7 @@ def returnBorrow():
 
 class EditBookForm(FlaskForm):
     book = SelectField('isbn', validators=[DataRequired()])
+    author = SelectField('author', validators=[DataRequired()])
     title = StringField('title', validators=[Optional()])
     year = IntegerField('year', validators=[Optional()])
     publisher = StringField('publisher', validators=[Optional()])
@@ -426,11 +427,15 @@ def edit_book():
     cursor = mysql.connection.cursor()
 
     # Fetch existing books from the database
-    cursor.execute('SELECT ISBN, Tytul, RokWyd, Wydawnictwo, LiczDostEgz FROM ksiazki')
-    books = [(book[0], f"{book[0]} - {book[1]} - {book[2]} - {book[3]} - {book[4]}") for book in cursor.fetchall()]
+    cursor.execute("SELECT k.ISBN, k.Tytul, k.RokWyd, k.Wydawnictwo, k.LiczDostEgz, a.ImieA, a.NazwiskoA FROM ksiazki k JOIN autorstwa auth ON k.ISBN = auth.isbn JOIN autorzy a ON auth.IdA = a.IdA;")
+    books = [(book[0], f"{book[0]} - {book[1]} - {book[2]} - {book[3]} - {book[4]} - {book[5]} {book[6]}") for book in cursor.fetchall()]
+    
+    cursor.execute('SELECT IdA, NazwiskoA, ImieA FROM autorzy')
+    authors = [(author[0], f"{author[0]} - {author[1]} - {author[2]}") for author in cursor.fetchall()]
 
     form = EditBookForm()
     form.book.choices = books
+    form.author.choices = authors
 
     if form.validate_on_submit():
 
@@ -446,6 +451,7 @@ def edit_book():
             return redirect(url_for('loggedInWorker'))
 
         isbn = form.book.data
+        idA = form.author.data
         title = form.title.data
         rokwyd = form.year.data
         wydawnictwo = form.publisher.data
@@ -460,6 +466,7 @@ def edit_book():
         # Update the book record in the database
         cursor.execute('UPDATE ksiazki SET Tytul = %s, RokWyd = %s, Wydawnictwo = %s, LiczDostEgz = %s WHERE ISBN = %s',
                        (title, rokwyd, wydawnictwo, liczdostegz, isbn))
+        cursor.execute('UPDATE autorstwa SET IdA = %s WHERE ISBN = %s', (idA, isbn))
         mysql.connection.commit()
 
         flash('Dodano pomyślnie', 'success')
