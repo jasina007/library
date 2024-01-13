@@ -9,6 +9,8 @@
 integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <link rel="stylesheet" href="static/style.css" />
 <body class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+
+
     <div class="text-center">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -17,7 +19,8 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
            {% endfor %}
         {% endif %}
         {% endwith %}
-        <h1>Pomyślnie zalogowano pracownika naszej biblioteki: {{name}} {{surname}}</h1>
+
+        <h1>Panel pracownika</h1>
         <div class="mb-4">
             <a href="/newBook">
                 <button class='btn btn-primary'>Dodaj książkę</button>
@@ -62,6 +65,10 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
             <a href="/loggedOut">
                 <button type="button" class="btn btn-primary">Wyloguj się</button>
             </a>
+        </div>
+
+        <div class="loginInfoBox">
+            <p class="loginInfo">Zalogowano: {{name}} {{surname}}</p>
         </div>
     </div>
 </body>

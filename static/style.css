@@ -58,3 +58,8 @@ th, td{
     border: 2px solid black;
     width: 10px;
 }
+
+.loginInfoBox
+    {position:relative;}
+.loginInfo
+    {position:absolute; bottom:0; right:0;}
