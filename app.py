@@ -29,10 +29,10 @@ app.register_blueprint(registration)
 app.register_blueprint(reports)
 
 
-app.config['MYSQL_HOST'] = 'sql.freedb.tech'
-app.config['MYSQL_USER'] = 'freedb_jasina'
-app.config['MYSQL_PASSWORD'] = 'v4Y33xteRgdvC@G'
-app.config['MYSQL_DB'] = 'freedb_Biblioteka'
+app.config['MYSQL_HOST'] = 'pro.freedb.tech'
+app.config['MYSQL_USER'] = 'librarian'
+app.config['MYSQL_PASSWORD'] = 'rVNn7JhH!xRc#UE'
+app.config['MYSQL_DB'] = 'BookPortal'
 
 mysql = MySQL(app)
 
