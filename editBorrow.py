@@ -52,12 +52,24 @@ def editBorrow():
         dataWyp = form.borrowDate.data
         oczekDataZwr = form.returnDate.data
         
+        try: #there can be catched exception because LiczDostEgz is optional
+                cursor.execute(f'SELECT LiczDostEgz FROM ksiazki WHERE ISBN = {isbn}')
+                availableBooks = cursor.fetchone()
+                
+                if availableBooks and availableBooks[0] <= 0:
+                    flash('Brak wolnych egzemplarzy wybranej książki', 'error')
+                    return redirect(url_for('editionBorrow.editBorrow'))
+        except TypeError:
+                flash('Nie podano ilości wolnych egzemplarzy tej książki', 'error')
+                return redirect(url_for('editionBorrow.editBorrow'))
+        
+        
         if dataWyp != None and oczekDataZwr != None:
             if dataWyp > date.today():
                 return incorrectBorrowDate('editionBorrow.editBorrow')
             if oczekDataZwr < date.today():
                 return incorrectReturnDate('editionBorrow.editBorrow')
-
+            
             cursor.execute('UPDATE wypozyczenia SET IdCz = %s, ISBN = %s, DataWyp = %s, OczekDataZwr = %s WHERE IdWyp = %s',
                         (idCz, isbn, dataWyp, oczekDataZwr, idWyp))
         elif oczekDataZwr == None and dataWyp != None:
@@ -69,6 +81,9 @@ def editBorrow():
         else:
             cursor.execute('UPDATE wypozyczenia SET IdCz = %s, ISBN = %s WHERE IdWyp = %s',
                        (idCz, isbn, idWyp))
+            
+        newAvailableBooks = availableBooks[0] - 1
+        cursor.execute("UPDATE ksiazki SET LiczDostEgz = %s WHERE ISBN = %s", (newAvailableBooks, isbn))
         
         mysql.connection.commit()
         flash('Zedytowano pomyślnie wypożyczenie', 'success')

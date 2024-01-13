@@ -1,5 +1,6 @@
 from flask import request, Blueprint, flash, redirect, url_for
 from flask_wtf import FlaskForm
+from MySQLdb import IntegrityError, OperationalError
 from wtforms import SelectField, StringField, IntegerField
 from wtforms.validators import DataRequired, Optional
 from loggings import isWorkerLoggedIn
@@ -9,43 +10,51 @@ books = Blueprint("books", __name__, static_folder="static", template_folder="te
 @books.route("/newBook", methods=['GET', 'POST'])
 def newBook():
     from app import mysql
-    if request.method == 'POST':
+    try:
+        if request.method == 'POST':
 
-        isbn = request.form['isbn']
-        title = request.form['title']
-        year = request.form['releaseYear']
-        publisher = request.form['publisher']
-        available_copies = request.form['availableBooks']
-        first_name = request.form['authorName']
-        last_name = request.form['authorSurname']
+            isbn = request.form['isbn']
+            title = request.form['title']
+            year = request.form['releaseYear']
+            publisher = request.form['publisher']
+            available_copies = request.form['availableBooks']
+            first_name = request.form['authorName']
+            last_name = request.form['authorSurname']
 
-        cursor = mysql.connection.cursor()
+            cursor = mysql.connection.cursor()
 
-        # Check if the author exists in the Authors table
-        cursor.execute("SELECT IdA FROM autorzy WHERE ImieA = %s AND NazwiskoA = %s", (first_name, last_name))
-        author = cursor.fetchone()
+            # Check if the author exists in the Authors table
+            cursor.execute("SELECT IdA FROM autorzy WHERE ImieA = %s AND NazwiskoA = %s", (first_name, last_name))
+            author = cursor.fetchone()
 
-        if author:
-            author_id = author[0]
-        else:
-            # If the author doesn't exist, insert a new author
-            cursor.execute("INSERT INTO autorzy (ImieA, NazwiskoA) VALUES (%s, %s)", (first_name, last_name))
-            author_id = cursor.lastrowid
+            if author:
+                author_id = author[0]
+            else:
+                # If the author doesn't exist, insert a new author
+                cursor.execute("INSERT INTO autorzy (ImieA, NazwiskoA) VALUES (%s, %s)", (first_name, last_name))
+                author_id = cursor.lastrowid
 
-        # Insert the book into the Books table
-        cursor.execute("INSERT INTO ksiazki (ISBN, Tytul, RokWyd, Wydawnictwo, LiczDostEgz) "
-                       "VALUES (%s, %s, %s, %s, %s)",
-                       (isbn, title, year, publisher, available_copies))
+            # Insert the book into the Books table
+            cursor.execute("INSERT INTO ksiazki (ISBN, Tytul, RokWyd, Wydawnictwo, LiczDostEgz) "
+                        "VALUES (%s, %s, %s, %s, %s)",
+                        (isbn, title, year, publisher, available_copies))
 
-        # Insert the book-author relationship into the BooksAuthors table
-        cursor.execute("INSERT INTO autorstwa (ISBN, IdA) VALUES (%s, %s)", (isbn, author_id))
+            # Insert the book-author relationship into the BooksAuthors table
+            cursor.execute("INSERT INTO autorstwa (ISBN, IdA) VALUES (%s, %s)", (isbn, author_id))
 
-        # Commit the changes to the database
-        mysql.connection.commit()
-        cursor.close()
-        flash('Dodano książkę pomyślnie!', 'success')
-        return redirect(url_for('logging.loggedInWorker'))
-    return isWorkerLoggedIn("addBook.html")
+            # Commit the changes to the database
+            mysql.connection.commit()
+            cursor.close()
+            flash('Dodano książkę pomyślnie!', 'success')
+            return redirect(url_for('logging.loggedInWorker'))
+        return isWorkerLoggedIn("addBook.html")
+    except IntegrityError:
+        flash('Podany ISBN został już wykorzystany dla innej książki.', 'error')
+        return redirect(url_for('books.newBook'))
+    except OperationalError:
+        flash('Rok wydania książki nie może być wcześniejszy od daty wynalezienia pisma.', 'error')
+        return redirect(url_for('books.newBook'))
+    
 
 
 class EditBookForm(FlaskForm):
