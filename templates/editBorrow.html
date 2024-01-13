@@ -12,15 +12,17 @@
 </head>
 <body>
     {% with messages = get_flashed_messages() %}
-    {% if messages %}
-       {% for message in messages %}
-          {{ message }}
-       {% endfor %}
-    {% endif %}
-    {% endwith %}
+      {% if messages %}
+       <div class="flash-message">
+         {% for message in messages %}
+            {{ message }}
+         {% endfor %}
+        </div>
+      {% endif %}
+      {% endwith %}
 
     <a href="/loggedUser/worker" class="mr-auto">
-        <button class='btn btn-primary'>
+        <button class='btn btn-primary' style="margin-left: 100px; margin-top: 0px;">
             Powrót
         </button>
     </a>
@@ -49,8 +51,12 @@
             {{ form.returnDate() }}
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block mb-4">Zatwierdź</button>
-        <button type="button" class="btn btn-danger btn-block mb-4" id="deleteButton">Usuń wypożyczenie</button>
+        <div class="container">
+        <div class="vertical-center">
+            <button type="submit" class="btn btn-primary btn-block mb-4">Zatwierdź</button>
+            <button type="button" class="btn btn-danger btn-block mb-4" id="deleteButton">Usuń wypożyczenie</button>
+            </div>
+            </div>
     </form>
 <!-- Add this script at the end of the body section in your HTML -->
 <script>

@@ -12,12 +12,14 @@
 </head>
 <body>
     {% with messages = get_flashed_messages() %}
-    {% if messages %}
-       {% for message in messages %}
-          {{ message }}
-       {% endfor %}
-    {% endif %}
-    {% endwith %}
+      {% if messages %}
+       <div class="flash-message">
+         {% for message in messages %}
+            {{ message }}
+         {% endfor %}
+        </div>
+      {% endif %}
+      {% endwith %}
     <div id="container">
         <h1>Witamy na stronie internetowej naszej biblioteki!</h1>
         <form action="/search" method="POST">

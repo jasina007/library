@@ -12,13 +12,20 @@
 </head>
 
 <body>
+  <a href="/" class="mr-auto">
+    <button class='btn btn-primary' style="margin-left: 100px; margin-top: 0px;">
+      Powrót
+    </button>
+  </a>
   {% with messages = get_flashed_messages() %}
-  {% if messages %}
-     {% for message in messages %}
-        {{ message }}
-     {% endfor %}
-  {% endif %}
-  {% endwith %}
+      {% if messages %}
+       <div class="flash-message">
+         {% for message in messages %}
+            {{ message }}
+         {% endfor %}
+        </div>
+      {% endif %}
+      {% endwith %}
 
     <h1>Logowanie</h1>
     <form action="/loggedUser/reader" method="POST" class="col-md-4">

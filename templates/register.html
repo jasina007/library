@@ -24,18 +24,20 @@
 </style>
 <body>
   <a href="/" class="mr-auto">
-    <button class='btn btn-primary'>
+    <button class='btn btn-primary' style="margin-left: 100px; margin-top: 0px;">
       Powrót
     </button>
   </a>
 
   {% with messages = get_flashed_messages() %}
-  {% if messages %}
-     {% for message in messages %}
-        {{ message }}
-     {% endfor %}
-  {% endif %}
-  {% endwith %}
+      {% if messages %}
+       <div class="flash-message">
+         {% for message in messages %}
+            {{ message }}
+         {% endfor %}
+        </div>
+      {% endif %}
+      {% endwith %}
 
     <h1>Rejestracja</h1>
     <form method="POST" action="/register" class="col-md-6"> 

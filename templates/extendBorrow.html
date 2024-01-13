@@ -12,20 +12,22 @@
 </head>
 <body>
     {% with messages = get_flashed_messages() %}
-    {% if messages %}
-       {% for message in messages %}
-          {{ message }}
-       {% endfor %}
-    {% endif %}
-    {% endwith %}
+      {% if messages %}
+       <div class="flash-message">
+         {% for message in messages %}
+            {{ message }}
+         {% endfor %}
+        </div>
+      {% endif %}
+      {% endwith %}
     
     <a href="/loggedUser/reader" class="mr-auto">
-        <button class='btn btn-primary'>
+        <button class='btn btn-primary' style="margin-left: 100px; margin-top: 0px;">
             Powrót
         </button>
     </a>
     <h1>Przedłuż swoje wypożyczenie</h1>
-    <form method="POST" action ="/extendBorrow" name="form">
+    <form method="POST" action ="/extendBorrow" name="form" class="col-md-4">
         {{ form.hidden_tag() }}
         <div class="form-outline mb-4">
             <label class="form-label" for="borrow">Wypożyczenie</label>

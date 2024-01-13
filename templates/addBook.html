@@ -12,15 +12,17 @@
 </head>
 <body>
     <a href="/loggedUser/worker" class="mr-auto">
-        <button class='btn btn-primary'>
+        <button class='btn btn-primary'  style="margin-left: 100px; margin-top: 0px;">
             Powrót
         </button>
       </a> 
       {% with messages = get_flashed_messages() %}
       {% if messages %}
+       <div class="flash-message">
          {% for message in messages %}
             {{ message }}
          {% endfor %}
+        </div>
       {% endif %}
       {% endwith %}
     <h1>Dodaj nową książkę do systemu</h1>

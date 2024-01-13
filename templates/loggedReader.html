@@ -12,9 +12,11 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
     <div class="text-center">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-           {% for message in messages %}
-              {{ message }}
-           {% endfor %}
+        <div class="flash-message">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+            </div>
         {% endif %}
         {% endwith %}
         <h1>Panel czytelnika</h1>
