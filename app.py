@@ -48,6 +48,8 @@ def before_request():
 def setSession(account, fileToOpen):
     session['id'] = account[0]
     session['username'] = account[4]
+    session["name"] = account[1]
+    session["surname"] = account[2]
     return render_template(fileToOpen, name=account[1], surname=account[2])
 
 def setSessionReader(account, fileToOpen):

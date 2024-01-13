@@ -13,7 +13,7 @@ def log_in():
 
 @logging.route("/loggedUser/reader", methods=['POST', 'GET'])
 def loggedIn():
-    from app import setSessionReader, mysql
+    from app import setSessionReader, mysql, session
     if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
         email = request.form['email']
         password = request.form['password']
@@ -28,20 +28,20 @@ def loggedIn():
             session['id'] = account[0]
             return setSessionReader(account, "loggedReader.html")
         else:
-            return redirect(url_for("logging.loggedInWorker"))
+            return redirect(url_for("logging.loggedInWorker", name=session.get("name"), surname=session.get("surname")))
     #check if user(reader) was already logged in
     elif session.get('loggedInReader'):
-        return render_template("loggedReader.html")
+        return render_template("loggedReader.html", name=session.get("name"), surname=session.get("surname"))
     else:
         return incorrectLogging()
 
 
 @logging.route("/loggedUser/worker")
 def loggedInWorker():
-    from app import setSessionWorker, mysql
+    from app import setSessionWorker, mysql, session
     #check if user(worker) was already logged in
     if session.get('loggedInWorker'):
-        return render_template("loggedWorker.html")
+        return render_template("loggedWorker.html", name=session.get("name"), surname=session.get("surname"))
     
     email = session.get('email')
     hashPassword = session.get('hashPassword')
