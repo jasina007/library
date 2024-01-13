@@ -167,7 +167,7 @@ def registering():
                 (first_name, last_name, phone, email, hashed_password))
             mysql.connection.commit()
             cursor.close()
-            flash('Your account has been created!', 'success')
+            flash('Utworzono konto pomyślnie!', 'success')
             return redirect(url_for('log_in'))
         return render_template("register.html")
     except IntegrityError:
@@ -286,11 +286,26 @@ def addBorrow():
             return incorrectBorrowDate('addBorrow')
         if return_date < date.today():
             return incorrectReturnDate('addBorrow')
+        
+        try: #there can be catched exception because LiczDostEgz is optional
+            cursor.execute(f'SELECT LiczDostEgz FROM ksiazki WHERE ISBN = {form.book.data}')
+            availableBooks = cursor.fetchone()
+            
+            if availableBooks and availableBooks[0] <= 0:
+                flash('Brak wolnych egzemplarzy wybranej książki', 'error')
+                return redirect(url_for('addBorrow'))
+        except TypeError:
+            flash('Nie podano ilości wolnych egzemplarzy tej książki', 'error')
+            return redirect(url_for('addBorrow'))
+            
         # Insert the borrow record into the database
         cursor.execute(
             'INSERT INTO wypozyczenia (IdCz, ISBN, DataWyp, OczekDataZwr, IdPWyd) VALUES (%s, %s, %s, %s, %s)',
-            (form.reader.data, form.book.data, form.borrow_date.data, form.return_date.data, session.get('id'))
+            (form.reader.data, form.book.data, borrow_date, return_date, session.get('id'))
         )
+        
+        newAvailableBooks = availableBooks[0] - 1
+        cursor.execute("UPDATE ksiazki SET LiczDostEgz = %s WHERE ISBN = %s", (newAvailableBooks, form.book.data))
         mysql.connection.commit()
 
         flash('Dodano pomyślnie', 'success')
@@ -312,7 +327,7 @@ def editBorrow():
     cursor = mysql.connection.cursor()
 
     # Fetch existing books from the database
-    cursor.execute('''SELECT w.IdWyp, c.ImieCz, c.NazwiskoCz, k.Tytul, w.DataWyp, w.OczekDataZwr FROM wypozyczenia w JOIN czytelnicy c ON w.IdCz = c.IdCz JOIN ksiazki k ON w.ISBN = k.ISBN''')
+    cursor.execute('''SELECT w.IdWyp, c.ImieCz, c.NazwiskoCz, k.Tytul, w.DataWyp, w.OczekDataZwr FROM wypozyczenia w JOIN czytelnicy c ON w.IdCz = c.IdCz JOIN ksiazki k ON w.ISBN = k.ISBN ORDER BY w.IdWyp''')
     borrows= [(borrow[0], f"{borrow[0]} - {borrow[1]} {borrow[2]} - {borrow[3]} - {borrow[4]} - {borrow[5]}") for borrow in cursor.fetchall()]
     
     cursor.execute('SELECT IdCz, ImieCz, NazwiskoCz FROM czytelnicy')
@@ -399,6 +414,9 @@ def returnBorrow():
         selected_borrow = next((borrow for borrow in borrows if borrow[0] == selected_borrow_id), None)
         return_date = form.returnDate.data
         borrow_date = datetime.strptime(selected_borrow[-1].split()[-1], '%Y-%m-%d').date()
+        
+        cursor.execute(f"SELECT ISBN FROM wypozyczenia WHERE IdWyp = {selected_borrow_id}")
+        chosenBorrowIsbn = cursor.fetchone()[0]
 
         if return_date > date.today():
             flash('Data faktycznego zwrotu nie może być późniejsza od obecnej', 'error')
@@ -412,6 +430,9 @@ def returnBorrow():
         cursor.execute(
             sql, (form.returnDate.data, form.comments.data, session.get("id"), selected_borrow_id)
         )
+        
+        #change number of available books(plus 1)
+        cursor.execute(f"UPDATE ksiazki SET LiczDostEgz = LiczDostEgz + 1 WHERE ISBN = {chosenBorrowIsbn}")
         mysql.connection.commit()
 
         flash('Dodano pomyślnie', 'success')
@@ -422,6 +443,7 @@ def returnBorrow():
 
 class EditBookForm(FlaskForm):
     book = SelectField('isbn', validators=[DataRequired()])
+    author = SelectField('author', validators=[DataRequired()])
     title = StringField('title', validators=[Optional()])
     year = IntegerField('year', validators=[Optional()])
     publisher = StringField('publisher', validators=[Optional()])
@@ -433,11 +455,15 @@ def edit_book():
     cursor = mysql.connection.cursor()
 
     # Fetch existing books from the database
-    cursor.execute('SELECT ISBN, Tytul, RokWyd, Wydawnictwo, LiczDostEgz FROM ksiazki')
-    books = [(book[0], f"{book[0]} - {book[1]} - {book[2]} - {book[3]} - {book[4]}") for book in cursor.fetchall()]
+    cursor.execute("SELECT k.ISBN, k.Tytul, k.RokWyd, k.Wydawnictwo, k.LiczDostEgz, a.ImieA, a.NazwiskoA FROM ksiazki k JOIN autorstwa auth ON k.ISBN = auth.isbn JOIN autorzy a ON auth.IdA = a.IdA;")
+    books = [(book[0], f"{book[0]} - {book[1]} - {book[2]} - {book[3]} - {book[4]} - {book[5]} {book[6]}") for book in cursor.fetchall()]
+    
+    cursor.execute('SELECT IdA, NazwiskoA, ImieA FROM autorzy')
+    authors = [(author[0], f"{author[0]} - {author[1]} - {author[2]}") for author in cursor.fetchall()]
 
     form = EditBookForm()
     form.book.choices = books
+    form.author.choices = authors
 
     if form.validate_on_submit():
 
@@ -453,6 +479,7 @@ def edit_book():
             return redirect(url_for('loggedInWorker'))
 
         isbn = form.book.data
+        idA = form.author.data
         title = form.title.data
         rokwyd = form.year.data
         wydawnictwo = form.publisher.data
@@ -467,6 +494,7 @@ def edit_book():
         # Update the book record in the database
         cursor.execute('UPDATE ksiazki SET Tytul = %s, RokWyd = %s, Wydawnictwo = %s, LiczDostEgz = %s WHERE ISBN = %s',
                        (title, rokwyd, wydawnictwo, liczdostegz, isbn))
+        cursor.execute('UPDATE autorstwa SET IdA = %s WHERE ISBN = %s', (idA, isbn))
         mysql.connection.commit()
 
         flash('Dodano pomyślnie', 'success')
@@ -674,13 +702,13 @@ def workerBorrowsReport():
             
         cursor.execute(f"SELECT w.IdP AS id_pracownika, w.NazwiskoP AS nazwisko_pracownika, w.ImieP AS imie_pracownika, COUNT(b.{workerType}) AS liczba_wypozyczen FROM `pracownicy` w LEFT JOIN `wypozyczenia` b ON b.{workerType} = w.IdP GROUP BY w.IdP, w.NazwiskoP ORDER BY w.IdP;")
         result = cursor.fetchall() 
-        pdf, col_width, th = setFpdfObject(f'Liczba wystapień kazdego pracownika w wypozyczeniach jako {workerName}', 4)
+        pdf, col_width, th = setFpdfObject(f'Liczba wystapień kazdego pracownika w wypożyczeniach jako {workerName}', 4)
         
         #headlines
         pdf.cell(col_width, th, "ID pracownika", border=1)
         pdf.cell(col_width, th, "Nazwisko pracownika", border=1)
         pdf.cell(col_width, th, "Imię pracownika", border=1)
-        pdf.cell(col_width, th, "Liczba wypozyczen", border=1)
+        pdf.cell(col_width, th, "Liczba wypożyczeń", border=1)
         pdf.ln(th)
         
         for row in result:
