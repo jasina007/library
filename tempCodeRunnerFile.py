@@ -1,1 +1,1 @@
-addBook
+, url_prefix="/logging"
