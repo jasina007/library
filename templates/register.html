@@ -10,6 +10,18 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="static/style.css" />
 </head>
+<style>
+  .col-md-6 {
+    margin-top: 5px; 
+    width: 50%;
+    max-width: 50%;
+  }
+
+  .vertical-center {
+    align-items: center;
+    justify-content: center;
+  }
+</style>
 <body>
   <a href="/" class="mr-auto">
     <button class='btn btn-primary'>
@@ -26,20 +38,20 @@
   {% endwith %}
 
     <h1>Rejestracja</h1>
-    <form method="POST" action="/register"> <!-- Specify the method and action -->
-  <!-- Name input -->
+    <form method="POST" action="/register" class="col-md-6"> 
+
   <div class="form-outline mb-4">
     <label class="form-label" for="form2Example1">Imię</label>
     <input type="text" id="form2Example1" name="first_name" class="form-control" maxlength="30" required/>
   </div>
 
-  <!-- Surname input -->
+ 
   <div class="form-outline mb-4">
     <label class="form-label" for="form2Example2">Nazwisko</label>
     <input type="text" id="form2Example2" name="last_name" class="form-control" maxlength="30" required/>
   </div>
 
-   <!-- Phone input -->
+ 
   <div class="form-outline mb-4">
     <label class="form-label" for="form2Example2">Numer telefonu</label>
     <input type="tel" id="form2Example3" name="phone" class="form-control" pattern="+[0-9]{2} [0-9]{3}-[0-9]{3}-[0-9]{3}" maxlength="15" required/>
@@ -65,10 +77,13 @@
 
   <span id="password-error" style="color: red;"></span>
 
-  <!-- Submit button -->
-  <button type="submit" class="btn btn-primary btn-block mb-4">Zarejestruj się</button>
+  <div class="container">
+    <div class="vertical-center">
+        <button type="submit" class="btn btn-primary btn-block mb-4">Zarejestruj się</button>
+    </div>
+  </div>
 
-  <!-- Register buttons -->
+
   <div class="text-center">
     <p>Masz już konto? <a href="/login">Zaloguj się</a></p>
   </div>

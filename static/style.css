@@ -63,3 +63,14 @@ th, td{
     {position:relative;}
 .loginInfo
     {position:absolute; bottom:0; right:0;}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.vertical-center {
+    margin-top: 0;
+}

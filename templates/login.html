@@ -10,6 +10,7 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="static/style.css" />
 </head>
+
 <body>
   {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -20,7 +21,7 @@
   {% endwith %}
 
     <h1>Logowanie</h1>
-    <form action="/loggedUser/reader" method="POST">
+    <form action="/loggedUser/reader" method="POST" class="col-md-4">
   <!-- Email input -->
   <div class="form-outline mb-4">
     <label class="form-label" for="form2Example1">Adres e-mail</label>
@@ -33,11 +34,12 @@
     <input type="password" id="password" name="password" class="form-control" minlength="6" required/>
   </div>
 
+  <div class="container">
+  <div class="vertical-center">
+    <button type="submit" class="btn btn-primary btn-block mb-4">Zaloguj się</button>
+  </div>
+  </div>
 
-  <!-- Submit button -->
-  <button type="submit" class="btn btn-primary btn-block mb-4">Zaloguj się</button>
-
-  <!-- Register buttons -->
   <div class="text-center">
     <p>Nie masz konta? <a href="/register">Zarejestruj się</a></p>
   </div>

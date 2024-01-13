@@ -20,8 +20,9 @@ def extendBorrow():
     cursor.execute("SELECT w.IdWyp, k.Tytul, w.DataWyp, w.OczekDataZwr, w.FaktDataZwr FROM `wypozyczenia` AS w INNER JOIN `ksiazki` AS k ON w.ISBN = k.ISBN WHERE w.IdCz = %s",  (idCz,))
     
     borrows = [
-        (str(borrow[0]), f"{borrow[1]} - {borrow[2]} - {borrow[3]} - {borrow[4]}")
+        (str(borrow[0]), f"{borrow[1]} - {borrow[2]} - {borrow[3]}")
         for borrow in cursor.fetchall()
+        if borrow[4] is None
     ]
     
     form = ExtendBorrowForm()
