@@ -64,17 +64,32 @@ def register():
     return render_template("register.html")
 
 
+def search(path):
+    try:
+        search_term = request.form.get('searchedBook')
+        cursor = mysql.connection.cursor()
+        # Modify the SQL query to search for books by title
+        cursor.execute(
+            "SELECT Tytul, RokWyd, Wydawnictwo, LiczDostEgz, ISBN FROM `ksiazki` WHERE Tytul LIKE %s ORDER BY Tytul",
+            ('%' + search_term + '%',))
+        books = cursor.fetchall()
+        cursor.close()
+        return render_template("search.html", books=books, path=path)
+    except TypeError:
+        return noSearchParameters()
+
+
 @app.route("/search", methods=['GET', 'POST'])
-def search():
-    search_term = request.form.get('searchedBook')
-    cursor = mysql.connection.cursor()
-    # Modify the SQL query to search for books by title
-    cursor.execute(
-        "SELECT Tytul, RokWyd, Wydawnictwo, LiczDostEgz, ISBN FROM `ksiazki` WHERE Tytul LIKE %s ORDER BY Tytul",
-        ('%' + search_term + '%',))
-    books = cursor.fetchall()
-    cursor.close()
-    return render_template("search.html", books=books)
+def searchForAll():
+    return search("/")
+
+@app.route("/searchWorker", methods=['GET', 'POST'])
+def searchForWorker():
+    return search("/loggedUser/worker")
+
+@app.route("/searchReader", methods=['GET', 'POST'])
+def searchForReader():
+    return search("/loggedUser/reader")
 
 
 def incorrectLogging():
@@ -164,6 +179,10 @@ def noPermissions():
     flash("Nie posiadasz odpowiednich uprawnień. Zaloguj się.")
     return redirect(url_for('log_in'))
 
+def noSearchParameters():
+    flash("Nie podano danych do wyszukania książki.")
+    return redirect(url_for('hello_world'))
+
 
 # method which not to allow unwanted user to go to websites for logged users only
 def isUserLoggedIn(loggingType: str, website, **kwargs):
@@ -179,6 +198,15 @@ def isReaderLoggedIn(website, **kwargs):
 
 def isWorkerLoggedIn(website, **kwargs):
     return isUserLoggedIn('loggedInWorker', website, **kwargs) 
+
+
+@app.route("/searchBookWorker")
+def searchWorker():
+    return isWorkerLoggedIn("searchBookWorker.html")
+
+@app.route("/searchBookReader")
+def searchReader():
+    return isReaderLoggedIn("searchBookReader.html")
 
 
 @app.route("/newBook", methods=['GET', 'POST'])
