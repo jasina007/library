@@ -5,6 +5,7 @@ body {
     justify-content: center;
     height: 85vh;
     margin: 0;
+    overflow: visible;
 }
 
 #container {
@@ -46,12 +47,17 @@ p {
     width: 500px
   }
 
+  #tableContainer {
+    max-height: 450px; 
+    overflow-y: auto;
+}
+
 #tableBooks{
     align-items: center;
     border: 2px solid black;
     align-self: center;
     margin-inline: 5px;
-    width: 1000px;
+    width: 1100px;
 }
 
 th, td{
