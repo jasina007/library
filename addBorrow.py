@@ -20,9 +20,9 @@ def addBorrow():
     from app import mysql, session
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT IdCz, ImieCz, NazwiskoCz FROM czytelnicy')
-    readers = [(str(reader[0]), f"{reader[1]} {reader[2]}") for reader in cursor.fetchall()]
+    readers = [(str(reader[0]), f"{reader[1]} {reader[2]} - {str(reader[0])}") for reader in cursor.fetchall()]
     cursor.execute('SELECT ISBN, Tytul FROM ksiazki')
-    books = [(book[0], book[1]) for book in cursor.fetchall()]
+    books = [(book[0], f"{book[1]} - {book[0]}" ) for book in cursor.fetchall()]
 
     form = BorrowForm()
     form.reader.choices = readers

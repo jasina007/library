@@ -31,12 +31,12 @@
     <form method="POST" action ="/newBorrow" name="form">
         {{ form.hidden_tag() }}
         <div class="form-outline mb-4">
-            <label class="form-label" for="idCz">ID czytelnika</label>
+            <label class="form-label" for="idCz">Czytelnik</label>
             {{ form.reader() }}
         <br>
         </div>
         <div class="form-outline mb-4">
-            <label class="form-label" for="isbn">Tytuł książki</label>
+            <label class="form-label" for="isbn">Książka</label>
             {{ form.book() }}
         <br>
         </div>

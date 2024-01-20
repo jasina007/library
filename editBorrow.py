@@ -22,14 +22,14 @@ def editBorrow():
     cursor = mysql.connection.cursor()
 
     # Fetch existing books from the database
-    cursor.execute('''SELECT w.IdWyp, c.ImieCz, c.NazwiskoCz, k.Tytul, w.DataWyp, w.OczekDataZwr FROM wypozyczenia w JOIN czytelnicy c ON w.IdCz = c.IdCz JOIN ksiazki k ON w.ISBN = k.ISBN ORDER BY w.IdWyp''')
-    borrows= [(borrow[0], f"{borrow[0]} - {borrow[1]} {borrow[2]} - {borrow[3]} - {borrow[4]} - {borrow[5]}") for borrow in cursor.fetchall()]
+    cursor.execute('''SELECT w.IdWyp, c.ImieCz, c.NazwiskoCz, c.IdCz, k.Tytul, w.DataWyp, w.OczekDataZwr FROM wypozyczenia w JOIN czytelnicy c ON w.IdCz = c.IdCz JOIN ksiazki k ON w.ISBN = k.ISBN ORDER BY w.IdWyp''')
+    borrows= [(borrow[0], f"{borrow[0]} - {borrow[1]} {borrow[2]} {borrow[3]}- {borrow[4]} - {borrow[5]} - {borrow[6]}") for borrow in cursor.fetchall()]
     
     cursor.execute('SELECT IdCz, ImieCz, NazwiskoCz FROM czytelnicy')
-    readers = [(str(reader[0]), f"{reader[1]} {reader[2]}") for reader in cursor.fetchall()]
+    readers = [(str(reader[0]), f"{reader[1]} {reader[2]} - {str(reader[0])}") for reader in cursor.fetchall()]
     
     cursor.execute('SELECT ISBN, Tytul FROM ksiazki')
-    books = [(book[0], book[1]) for book in cursor.fetchall()]
+    books = [(book[0], f"{book[1]} - {book[0]}") for book in cursor.fetchall()]
 
     form = EditBorrowForm()
     form.borrow.choices = borrows

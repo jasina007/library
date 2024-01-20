@@ -103,7 +103,7 @@ def workerBorrowsReport():
             
         cursor.execute(f"SELECT w.IdP AS id_pracownika, w.NazwiskoP AS nazwisko_pracownika, w.ImieP AS imie_pracownika, COUNT(b.{workerType}) AS liczba_wypozyczen FROM `pracownicy` w LEFT JOIN `wypozyczenia` b ON b.{workerType} = w.IdP GROUP BY w.IdP, w.NazwiskoP ORDER BY w.IdP;")
         result = cursor.fetchall() 
-        pdf, col_width, th = setFpdfObject(f'Liczba wystapień kazdego pracownika w wypożyczeniach jako {workerName}', 4)
+        pdf, col_width, th = setFpdfObject(f'Liczba wystąpień każdego pracownika w wypożyczeniach jako {workerName}', 4)
         
         #headlines
         pdf.cell(col_width, th, "ID pracownika", border=1)
