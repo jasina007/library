@@ -176,7 +176,6 @@ def commentsBorrowReport():
         pdf.ln(th)
         
         for row in result:
-            print(row)
             pdf.cell(colWidths[0], th, str(row[0]), border=1)
             pdf.cell(colWidths[1], th, str(row[1]), border=1)
             pdf.cell(colWidths[2], th, str(row[2]), border=1)
