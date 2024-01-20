@@ -160,11 +160,11 @@ def commentsBorrowReport():
         chosenYear = request.form['chosenYearComment']
         cursor = mysql.connection.cursor()
         cursor.execute(f'''
-        SELECT wypozyczenia.IdWyp, czytelnicy.ImieCz, czytelnicy.NazwiskoCz, wypozyczenia.DataWyp, wypozyczenia.Uwagi
+        SELECT wypozyczenia.IdWyp, czytelnicy.ImieCz, czytelnicy.NazwiskoCz, wypozyczenia.FaktDataZwr, wypozyczenia.Uwagi
         FROM wypozyczenia
         JOIN czytelnicy ON wypozyczenia.IdCz = czytelnicy.IdCz
-        WHERE wypozyczenia.Uwagi IS NOT NULL AND wypozyczenia.Uwagi <> '' AND EXTRACT(YEAR FROM wypozyczenia.DataWyp) = %s
-        ORDER BY EXTRACT(MONTH FROM wypozyczenia.DataWyp);
+        WHERE wypozyczenia.Uwagi IS NOT NULL AND wypozyczenia.Uwagi <> '' AND EXTRACT(YEAR FROM wypozyczenia.FaktDataZwr) = %s
+        ORDER BY EXTRACT(MONTH FROM wypozyczenia.FaktDataZwr);
         ''', (chosenYear, ))
         result = cursor.fetchall()
         pdf, col_width, th = setFpdfObject(f'Wypożyczenia ze zgłoszonymi uwagami w roku {chosenYear} z danymi czytelników ', 2)
