@@ -176,11 +176,11 @@ def commentsBorrowReport():
         pdf.ln(th)
         
         for row in result:
-            pdf.cell(colWidths[0], th, str(row[0]), border=1)
-            pdf.cell(colWidths[1], th, str(row[1]), border=1)
-            pdf.cell(colWidths[2], th, str(row[2]), border=1)
-            pdf.cell(colWidths[3], th, str(row[3]), border=1)
-            pdf.multi_cell(colWidths[4], th, str(row[4]), border=1)
+            for header, width, value in zip(headers, colWidths, row):
+                if header == "Uwagi":
+                    pdf.multi_cell(width, th, str(value), border=1)
+                else:
+                    pdf.cell(width, th, str(value), border=1)
             pdf.ln(th)
             
         cursor.close()
