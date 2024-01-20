@@ -52,5 +52,15 @@
             <button type="submit" class="btn btn-primary btn-block mb-4">Książki danego autora</button>
         </form>
     </div>
+    <div class="bordered-div">
+        <form method="POST" action="/commentsBorrows" name="form" >
+            <select name="chosenYearComment">
+                {% for year in availableYears %}
+                    <option value="{{ year }}">{{ year }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary btn-block mb-4">Wypożyczenia z zastrzeżeniami</button>
+        </form>
+    </div>
 </body>
 </html>

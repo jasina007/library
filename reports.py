@@ -144,12 +144,47 @@ def authorBooksReport():
         pdf.ln(th)
         
         for row in result:
-            print(row)
             pdf.cell(col_width, th, row[0], border=1)
             pdf.cell(col_width, th, str(row[1]), border=1)
             pdf.ln(th) 
             
         cursor.close()
         return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'attachment; filename=raport3.pdf'})
+    except BadRequestKeyError:
+        return noPermissions()
+    
+@reports.route("/commentsBorrows", methods=['GET', 'POST'])
+def commentsBorrowReport():
+    from app import mysql
+    try:
+        chosenYear = request.form['chosenYearComment']
+        cursor = mysql.connection.cursor()
+        cursor.execute(f'''
+        SELECT wypozyczenia.IdWyp, czytelnicy.ImieCz, czytelnicy.NazwiskoCz, wypozyczenia.DataWyp, wypozyczenia.Uwagi
+        FROM wypozyczenia
+        JOIN czytelnicy ON wypozyczenia.IdCz = czytelnicy.IdCz
+        WHERE wypozyczenia.Uwagi IS NOT NULL AND wypozyczenia.Uwagi <> '' AND EXTRACT(YEAR FROM wypozyczenia.DataWyp) = %s
+        ORDER BY EXTRACT(MONTH FROM wypozyczenia.DataWyp);
+        ''', (chosenYear, ))
+        result = cursor.fetchall()
+        pdf, col_width, th = setFpdfObject(f'Wypożyczenia ze zgłoszonymi uwagami w roku {chosenYear} z danymi czytelników ', 2)
+        
+        headers = ["IdWyp", "Imię", "Nazwisko",  "DataZwr", "Uwagi"]
+        colWidths = [14, 35, 50, 25, 65]
+        for header, width in zip(headers, colWidths):
+            pdf.cell(width, th, header, border=1)
+        pdf.ln(th)
+        
+        for row in result:
+            print(row)
+            pdf.cell(colWidths[0], th, str(row[0]), border=1)
+            pdf.cell(colWidths[1], th, str(row[1]), border=1)
+            pdf.cell(colWidths[2], th, str(row[2]), border=1)
+            pdf.cell(colWidths[3], th, str(row[3]), border=1)
+            pdf.multi_cell(colWidths[4], th, str(row[4]), border=1)
+            pdf.ln(th)
+            
+        cursor.close()
+        return Response(pdf.output(dest='S').encode('latin-1'), mimetype='application/pdf', headers={'Content-Disposition':'attachment; filename=raport4.pdf'})
     except BadRequestKeyError:
         return noPermissions()
