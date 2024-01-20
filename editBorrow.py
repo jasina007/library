@@ -84,10 +84,11 @@ def editBorrow():
         else:
             cursor.execute('UPDATE wypozyczenia SET IdCz = %s, ISBN = %s WHERE IdWyp = %s',
                        (idCz, isbn, idWyp))
-            
+        
+        '''
         if isbn != isbnFromChosenBorrow[0]:  
             newAvailableBooks = availableBooks[0] - 1
-            cursor.execute("UPDATE ksiazki SET LiczDostEgz = %s WHERE ISBN = %s", (newAvailableBooks, isbn))
+            cursor.execute("UPDATE ksiazki SET LiczDostEgz = %s WHERE ISBN = %s", (newAvailableBooks, isbn)) '''
         
         mysql.connection.commit()
         flash('Zedytowano pomyślnie wypożyczenie', 'success')
