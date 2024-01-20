@@ -26,25 +26,28 @@
     <div id="tableContainer">
         <table id="tableBooks">
             <thead>
-            <tr>
-                <th>Tytuł</th>
-                <th>Rok wydania</th>
-                <th>Wydawnictwo</th>
-                <th>Ilość dostępnych egzemplarzy</th>
-                <th>ISBN</th>
-            </tr>
+                <tr>
+                    <th>Autor</th>
+                    <th>Tytuł</th>
+                    <th>Rok wydania</th>
+                    <th>Wydawnictwo</th>
+                    <th>Ilość dostępnych egzemplarzy</th>
+                    <th>ISBN</th>
+                </tr>
             </thead>
             <tbody>
                 {% for book in books %}
-                <tr>
-                    <td>{{book[0]}}</td>
-                    <td>{{book[1]}}</td>
-                    <td>{{book[2]}}</td>
-                    <td>{{book[3]}}</td>
-                    <td>{{book[4]}}</td>
-                </tr>
-                {% endfor %}
+                    <tr>
+                        <td>{{book[5]}} {{book[6]}}</td>
+                        <td>{{book[0]}}</td>
+                        <td>{{book[1]}}</td>
+                        <td>{{book[2]}}</td>
+                        <td>{{book[3]}}</td>
+                        <td>{{book[4]}}</td>
+                    </tr>
+            {% endfor %}
             </tbody>
+
         </table>
     </div>
 </body>

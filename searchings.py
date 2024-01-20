@@ -19,6 +19,32 @@ def search(path):
     except TypeError:
         return noSearchParameters()
 
+def search(path):
+    from app import mysql
+    try:
+        search_term = request.form.get('searchedBook')
+        cursor = mysql.connection.cursor()
+        cursor.execute("""
+            SELECT 
+                k.Tytul, k.RokWyd, k.Wydawnictwo, k.LiczDostEgz, k.ISBN, a.ImieA, a.NazwiskoA
+            FROM 
+                ksiazki k
+            JOIN 
+                autorstwa ka ON k.ISBN = ka.ISBN
+            JOIN 
+                autorzy a ON ka.IdA = a.IdA
+            WHERE 
+                k.Tytul LIKE %s
+            ORDER BY 
+                a.NazwiskoA
+        """, ('%' + search_term + '%',))
+        books = cursor.fetchall()
+        cursor.close()
+        return render_template("search.html", books=books, path=path)
+    except TypeError:
+        return noSearchParameters()
+
+
 
 @searchings.route("/search", methods=['GET', 'POST'])
 def searchForAll():
