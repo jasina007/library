@@ -132,11 +132,12 @@ def authorBooksReport():
     try:
         chosenAuthor = request.form['allAuthors']
         splittedAuthor = chosenAuthor.strip('()').split(', ')
+        splittedAuthor = [author.replace("'", "") for author in splittedAuthor]
         tupleAuthor = tuple(splittedAuthor)
         cursor = mysql.connection.cursor()
         cursor.execute(f"SELECT k.Tytul, k.LiczDostEgz FROM ksiazki k JOIN autorstwa a ON k.ISBN = a.ISBN JOIN autorzy aut ON a.IdA = aut.IdA WHERE aut.IdA = %s;", (str(tupleAuthor[0]), ))
         result = cursor.fetchall()
-        pdf, col_width, th = setFpdfObject(f'Książki autora {str(tupleAuthor[1])} {str(tupleAuthor[2])} dostępne w bibliotece w podanej liczbie egzemplarzy', 2)
+        pdf, col_width, th = setFpdfObject(f'Książki autora {tupleAuthor[1]} {tupleAuthor[2]} dostępne w bibliotece w podanej liczbie egzemplarzy', 2)
         
         #headlines
         pdf.cell(col_width, th, "Tytuł książki", border=1)

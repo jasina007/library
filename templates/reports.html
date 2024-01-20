@@ -21,7 +21,7 @@
         <form method="POST" action="/monthReaders" name="form" >
             <select name="chosenYear">
                 {% for year in availableYears %}
-                    <option value="{{ year }}">{{ year }}</option>
+                    <option value="year">{{ year }}</option>
                 {% endfor %}
             </select>
             <button type="submit" class="btn btn-primary btn-block mb-4">Miesięczne liczby czytelników w danym roku</button>
