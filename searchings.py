@@ -11,8 +11,15 @@ def search(path):
         cursor = mysql.connection.cursor()
         # Modify the SQL query to search for books by title
         cursor.execute(
-            "SELECT Tytul, RokWyd, Wydawnictwo, LiczDostEgz, ISBN FROM `ksiazki` WHERE Tytul LIKE %s ORDER BY Tytul",
-            ('%' + search_term + '%',))
+        """
+        SELECT ksiazki.Tytul, ksiazki.RokWyd, ksiazki.Wydawnictwo, ksiazki.LiczDostEgz, ksiazki.ISBN, autorzy.ImieA, autorzy.NazwiskoA
+        FROM ksiazki
+        JOIN autorstwa ON ksiazki.ISBN = autorstwa.ISBN
+        JOIN autorzy ON autorstwa.IdA = autorzy.IdA
+        WHERE ksiazki.Tytul LIKE %s
+        ORDER BY ksiazki.Tytul;
+        """,
+        ('%' + search_term + '%',))
         books = cursor.fetchall()
         cursor.close()
         return render_template("search.html", books=books, path=path)
